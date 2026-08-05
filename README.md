@@ -1,3 +1,6 @@
+[![GitHub Release](https://github.com/SoundsLikeJonny/TinyType/)](https://img.shields.io/github/v/release/soundslikejonny/TinyType
+)
+
 # TinyType
 
 <img width="265" height="80" alt="splash" src="https://github.com/user-attachments/assets/383f4da9-e73f-451b-a7c9-59a1ecea1864" />
