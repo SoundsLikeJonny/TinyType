@@ -86,9 +86,9 @@ class TypingOverlay(QWidget):
     def _apply_config(self) -> None:
         """Apply configuration to overlay appearance."""
         font_family: str = self.config.get("font_family", "Consolas")
-        font_size: int = self.config.get("font_size", 24)
-        width: int = self.config.get("typing_width", 1200)
-        height: int = self.config.get("typing_height", 120)
+        font_size: int = self.config.get("font_size", 10)
+        width: int = self.config.get("typing_width", 600)
+        height: int = self.config.get("typing_height", 40)
         show_border: bool = self.config.get("show_border", False)
         
         font: QFont = QFont(font_family, font_size)
@@ -127,6 +127,7 @@ class TypingOverlay(QWidget):
             x = screen.width() - self.width() - 50
         
         self.move(x, y)
+        self._update_display()
     
     def _load_problem_chars(self) -> None:
         """Load problematic characters from database."""
@@ -177,7 +178,7 @@ class TypingOverlay(QWidget):
         untyped_color: str = self.config.get("untyped_color", "#808080")
         typed_color: str = self.config.get("typed_color", "#808080")
         error_color: str = self.config.get("error_color", "#FF0000")
-        move_per_word: bool = self.config.get("move_per_word", False)
+        move_per_word: bool = self.config.get("move_per_word", True)
         
         pos: int = self.engine.position
         text: str = self.engine.text

@@ -13,7 +13,7 @@
 #
 #      You should have received a copy of the GNU General Public License
 #      along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+import time
 from pathlib import Path
 
 from PySide6 import QtWidgets, QtGui
@@ -56,7 +56,10 @@ class SplashScreen(QDialog, Ui_splash_screen):
         self.splash_screen.setLayout(layout)
         self.splash_screen.show()
         QCoreApplication.processEvents()
-        print('New splash screen')
+        time.sleep(1)
+        self.signal_splash_screen_closed.emit()
+        self.splash_screen.close()
+        self.close()
 
     def mousePressEvent(self, mouse_event: QMouseEvent) -> None:
         self.splash_screen.close()

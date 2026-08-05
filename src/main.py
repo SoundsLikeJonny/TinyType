@@ -34,7 +34,7 @@ from ui.splash import SplashScreen
 
 class TinyTypeApp(QObject):
     """Main application controller."""
-    
+
     def __init__(self) -> None:
         """Initialize TinyType application."""
         super().__init__()
@@ -58,7 +58,9 @@ class TinyTypeApp(QObject):
         
         if self.auth.is_logged_in():
             self.auth.login()
-        self._show_typing_overlay()
+
+        self.splash: SplashScreen = SplashScreen()
+
     
     def _setup_tray(self) -> None:
         """Setup system tray icon and menu."""
@@ -84,6 +86,8 @@ class TinyTypeApp(QObject):
         self.tray_icon.setContextMenu(tray_menu)
         self.tray_icon.activated.connect(self._tray_activated)
         self.tray_icon.show()
+
+        self._show_typing_overlay()
     
     def _create_icon(self) -> QIcon:
         """
@@ -153,8 +157,6 @@ class TinyTypeApp(QObject):
                 self._handle_test_completed
             )
 
-        self.overlay.splash: SplashScreen = SplashScreen()
-        # self.overlay.splash.splash_screen.finish(self.app)
         self.overlay.show()
         self.overlay.activateWindow()
         self.overlay.setFocus()
