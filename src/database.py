@@ -156,22 +156,34 @@ class Database:
         conn: sqlite3.Connection = sqlite3.connect(self.db_path)
         cursor: sqlite3.Cursor = conn.cursor()
         
-        cursor.execute(
-            """SELECT AVG(wpm), AVG(accuracy), COUNT(*) FROM tests 
-               WHERE user_email = ?""",
-            (user_email,)
-        )
+        if user_email is None:
+            cursor.execute(
+                """SELECT AVG(wpm), AVG(accuracy), COUNT(*) FROM tests 
+                   WHERE user_email IS NULL"""
+            )
+        else:
+            cursor.execute(
+                """SELECT AVG(wpm), AVG(accuracy), COUNT(*) FROM tests 
+                   WHERE user_email = ?""",
+                (user_email,)
+            )
         row: Optional[tuple] = cursor.fetchone()
         
         avg_wpm: float = row[0] if row[0] else 0.0
         avg_accuracy: float = row[1] if row[1] else 0.0
         total_tests: int = row[2]
         
-        cursor.execute(
-            """SELECT character, errors, total_typed FROM character_stats 
-               WHERE user_email = ? ORDER BY errors DESC LIMIT 10""",
-            (user_email,)
-        )
+        if user_email is None:
+            cursor.execute(
+                """SELECT character, errors, total_typed FROM character_stats 
+                   WHERE user_email IS NULL ORDER BY errors DESC LIMIT 10"""
+            )
+        else:
+            cursor.execute(
+                """SELECT character, errors, total_typed FROM character_stats 
+                   WHERE user_email = ? ORDER BY errors DESC LIMIT 10""",
+                (user_email,)
+            )
         problem_chars: List[tuple] = cursor.fetchall()
         
         conn.close()

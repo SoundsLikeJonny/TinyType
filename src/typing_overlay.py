@@ -288,7 +288,7 @@ class TypingOverlay(QWidget):
         """
         if event.key() == Qt.Key_Tab:
             if self.engine.start_time is None:
-                self._start_new_test(force_random=True)
+                self._start_new_test(force_random=False)
             else:
                 self._start_new_test()
             return

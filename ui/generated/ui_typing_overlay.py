@@ -15,18 +15,21 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QLabel, QSizePolicy, QVBoxLayout,
-    QWidget)
+from PySide6.QtWidgets import (QApplication, QHBoxLayout, QLabel, QLayout,
+    QSizePolicy, QVBoxLayout, QWidget)
 
 class Ui_TypingOverlay(object):
     def setupUi(self, TypingOverlay):
         if not TypingOverlay.objectName():
             TypingOverlay.setObjectName(u"TypingOverlay")
-        TypingOverlay.resize(329, 40)
+        TypingOverlay.resize(543, 50)
         self.verticalLayout = QVBoxLayout(TypingOverlay)
         self.verticalLayout.setSpacing(5)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout = QHBoxLayout()
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.horizontalLayout.setSizeConstraint(QLayout.SetFixedSize)
         self.label_stats = QLabel(TypingOverlay)
         self.label_stats.setObjectName(u"label_stats")
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
@@ -36,7 +39,10 @@ class Ui_TypingOverlay(object):
         self.label_stats.setSizePolicy(sizePolicy)
         self.label_stats.setAlignment(Qt.AlignCenter)
 
-        self.verticalLayout.addWidget(self.label_stats)
+        self.horizontalLayout.addWidget(self.label_stats)
+
+
+        self.verticalLayout.addLayout(self.horizontalLayout)
 
         self.label_text = QLabel(TypingOverlay)
         self.label_text.setObjectName(u"label_text")
