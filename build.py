@@ -1,9 +1,3 @@
-#  Copyright (c) 2024 Jon Evans.
-#
-#  The original Wwise-Python Tool Template and source code is provided by Jon Evans,
-#  Copyright 2024 (c) Jon Evans Audio under the Apache License, Version 2.0
-#  for the purposes of distributing internal tools
-#
 #      TinyType is a minimal typing test software that sits in the corner of your screen while you work!
 #      Copyright (C) 2026  Jon Evans
 #
