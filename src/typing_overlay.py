@@ -201,7 +201,7 @@ class TypingOverlay(QWidget):
             elif i == pos:
                 html_parts.append(
                     f'<span style="color: {untyped_color}; '
-                    f'background-color: white; font-weight: bold;">{char}</span>'
+                    f'background-color: {self._get_default_color()}; font-weight: bold;">{char}</span>'
                 )
             else:
                 html_parts.append(f'<span style="color: {untyped_color}">{char}</span>')
@@ -229,8 +229,9 @@ class TypingOverlay(QWidget):
         )
         
         self.ui.label_text.setText(
-            f'<span style="color: white;">{results_text}</span>'
+            f'<span style="color: {self._get_default_color()};">{results_text}</span>'
         )
+
         
         self.test_completed.emit({
             "wpm": wpm,
@@ -278,6 +279,9 @@ class TypingOverlay(QWidget):
         self.config.set("bg_opacity", new_opacity)
         self.config.save()
         self.update()
+
+    def _get_default_color(self) -> str:
+        return self.config.get("typed_color", "#808080")
     
     def keyPressEvent(self, event: QKeyEvent) -> None:
         """
@@ -435,5 +439,6 @@ class TypingOverlay(QWidget):
                 f'Accuracy: {current_accuracy:.1f}%  |  '
                 f'Time: {elapsed:.1f}s'
             )
-        
-        self.ui.label_stats.setText(stats_text)
+        self.ui.label_stats.setText(
+            f'<span style="color: {self._get_default_color()};">{stats_text}</span>'
+        )
