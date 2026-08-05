@@ -10,8 +10,8 @@ from PySide6.QtCore import Signal
 import sys
 import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'ui', 'generated'))
-from ui_settings_window import Ui_SettingsWindow
+# sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'ui', 'generated'))
+from ui.generated.ui_settings_window import Ui_SettingsWindow
 
 from src.config import Config
 from src.database import Database
@@ -361,3 +361,14 @@ class SettingsWindow(QMainWindow):
         """
         event.ignore()
         self.hide()
+    
+    def showEvent(self, event) -> None:
+        """
+        Handle window show event - reload settings.
+        
+        Args:
+            event: Show event
+        """
+        super().showEvent(event)
+        bg_opacity: int = self.config.get("bg_opacity", 128)
+        self.ui.slider_bgOpacity.setValue(bg_opacity)

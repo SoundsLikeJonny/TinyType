@@ -6,14 +6,16 @@ import sys
 import os
 from PySide6.QtWidgets import QWidget
 from PySide6.QtCore import Qt, QTimer, Signal
-from PySide6.QtGui import QFont, QColor, QKeyEvent, QPainter
+from PySide6.QtGui import QFont, QColor, QKeyEvent, QPainter, QIcon
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'ui', 'generated'))
-from ui_typing_overlay import Ui_TypingOverlay
+from project_info import Info
+
+from ui.generated.ui_typing_overlay import Ui_TypingOverlay
 
 from src.typing_engine import TypingEngine
 from src.config import Config
 from src.database import Database
+from ui.splash import SplashScreen
 
 
 class TypingOverlay(QWidget):
@@ -46,6 +48,8 @@ class TypingOverlay(QWidget):
         self.showing_results: bool = False
         self.display_word_start: int = 0
         self.current_test_name: str = "Default"
+        self.dragging: bool = False
+        self.drag_start_pos = None
         
         self._setup_window()
         self._apply_config()
@@ -64,6 +68,7 @@ class TypingOverlay(QWidget):
             Qt.WindowStaysOnTopHint | 
             Qt.Tool
         )
+        self.setWindowIcon(QIcon(Info.ICON_PATH))
         self.setAttribute(Qt.WA_TranslucentBackground)
     
     def _apply_config(self) -> None:
@@ -259,6 +264,7 @@ class TypingOverlay(QWidget):
         new_opacity: int = max(0, min(255, current_opacity + delta))
         self.config.set("bg_opacity", new_opacity)
         self.config.save()
+        self.update()
     
     def keyPressEvent(self, event: QKeyEvent) -> None:
         """
@@ -328,6 +334,48 @@ class TypingOverlay(QWidget):
             self.rect(), 
             QColor(0, 0, 0, bg_opacity)
         )
+    
+    def mousePressEvent(self, event) -> None:
+        """
+        Handle mouse press events for dragging.
+        
+        Args:
+            event: Mouse event
+        """
+        if event.modifiers() & Qt.AltModifier:
+            self.dragging = True
+            self.drag_start_pos = event.globalPosition().toPoint() - self.pos()
+            event.accept()
+        else:
+            super().mousePressEvent(event)
+    
+    def mouseMoveEvent(self, event) -> None:
+        """
+        Handle mouse move events for dragging.
+        
+        Args:
+            event: Mouse event
+        """
+        if self.dragging and event.modifiers() & Qt.AltModifier:
+            new_pos = event.globalPosition().toPoint() - self.drag_start_pos
+            self.move(new_pos)
+            event.accept()
+        else:
+            super().mouseMoveEvent(event)
+    
+    def mouseReleaseEvent(self, event) -> None:
+        """
+        Handle mouse release events for dragging.
+        
+        Args:
+            event: Mouse event
+        """
+        if self.dragging:
+            self.dragging = False
+            self.drag_start_pos = None
+            event.accept()
+        else:
+            super().mouseReleaseEvent(event)
     
     def update_user(self, user_email: Optional[str]) -> None:
         """

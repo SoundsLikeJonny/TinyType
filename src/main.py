@@ -9,11 +9,13 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QIcon, QAction, QKeySequence
 from PySide6.QtCore import QObject, Signal, QEvent, Qt
 
+from project_info import Info
 from src.config import Config
 from src.database import Database
 from src.auth import GoogleAuth
 from src.typing_overlay import TypingOverlay
 from src.settings_window import SettingsWindow
+from ui.splash import SplashScreen
 
 
 class TinyTypeApp(QObject):
@@ -28,6 +30,7 @@ class TinyTypeApp(QObject):
         self.config: Config = Config()
         self.database: Database = Database()
         self.auth: GoogleAuth = GoogleAuth()
+
         
         self.overlay: Optional[TypingOverlay] = None
         self.settings_window: SettingsWindow = SettingsWindow(
@@ -49,7 +52,7 @@ class TinyTypeApp(QObject):
         self.tray_icon.setIcon(self._create_icon())
         
         tray_menu: QMenu = QMenu()
-        
+
         start_action: QAction = QAction("Start Typing Test", self.app)
         start_action.triggered.connect(self._show_typing_overlay)
         tray_menu.addAction(start_action)
@@ -135,7 +138,9 @@ class TinyTypeApp(QObject):
             self.overlay.test_completed.connect(
                 self._handle_test_completed
             )
-        
+
+        self.overlay.splash: SplashScreen = SplashScreen()
+        # self.overlay.splash.splash_screen.finish(self.app)
         self.overlay.show()
         self.overlay.activateWindow()
         self.overlay.setFocus()

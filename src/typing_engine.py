@@ -52,15 +52,18 @@ class TypingEngine:
         """
         if custom_text and custom_text.strip():
             self.text = custom_text.strip()
+            words: List[str] = self.text.split(" ")
+            words = random.choices(words, k=word_count)
+            self.text = " ".join(words)
         elif problem_chars and len(problem_chars) > 0:
-            words: List[str] = self._generate_focused_text(
-                problem_chars, word_count
-            )
+            words: List[str] = self._generate_focused_text(problem_chars, word_count)
             self.text = " ".join(words)
         else:
             words = random.choices(self.COMMON_WORDS, k=word_count)
             self.text = " ".join(words)
-        
+
+        # self.text = random.choices(self.text.split(), k=word_count)
+
         self.position = 0
         self.mistakes = {}
         self.error_positions = []
