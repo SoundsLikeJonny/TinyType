@@ -1,5 +1,7 @@
-[![GitHub Release](https://github.com/SoundsLikeJonny/TinyType/)](https://img.shields.io/github/v/release/soundslikejonny/TinyType
-)
+
+![GitHub Release](https://img.shields.io/github/v/release/soundslikejonny/TinyType?include_prereleases&display_name=release)
+
+
 
 # TinyType
 
