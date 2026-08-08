@@ -59,6 +59,11 @@ class ChildEventFilter(QObject):
                 if not (event.modifiers() & Qt.AltModifier):
                     self.overlay._handle_mode_label_click(obj)
                     return True
+            # Update badge / version label clicks when an update is available.
+            if obj in (self.overlay.ui.label_update, self.overlay.ui.label_version):
+                if not (event.modifiers() & Qt.AltModifier):
+                    self.overlay._on_update_clicked()
+                    return True
             # if event.modifiers() & Qt.AltModifier:
             self.overlay.dragging = True
             self.overlay.drag_start_pos = (
@@ -1034,8 +1039,6 @@ class TypingOverlay(QWidget):
         self.ui.label_update.setPixmap(pixmap)
         self.ui.label_update.setToolTip(f"TinyType {latest_version} is available — click to update")
         self.ui.label_update.setVisible(True)
-        self.ui.label_update.mousePressEvent = lambda e: self._on_update_clicked()
-        self._pending_update_url = ""
 
         # Make the version label clickable to update too (1.d)
         secondary = self.config.get("typed_color", "#8b047e")
@@ -1048,12 +1051,15 @@ class TypingOverlay(QWidget):
         self.ui.label_version.setTextFormat(Qt.RichText)
         self.ui.label_version.setCursor(Qt.PointingHandCursor)
         self.ui.label_version.setToolTip(f"Click to install TinyType {latest_version}")
-        self.ui.label_version.mousePressEvent = lambda e: self._on_update_clicked()
+        # Clicks on label_update / label_version are handled in ChildEventFilter,
+        # so the version label must not reset its handler afterwards.
 
     def set_update_url(self, url: str) -> None:
         self._pending_update_url = url
 
     def _on_update_clicked(self) -> None:
+        if not self._pending_update_url:
+            return
         from PySide6.QtWidgets import QMessageBox
         reply = QMessageBox.question(
             self,
