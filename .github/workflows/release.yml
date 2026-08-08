@@ -137,6 +137,9 @@ jobs:
           pyinstaller build.spec
 
       # ── NSIS installer ────────────────────────────────────────
+      - name: Setup NSIS
+        uses: negrutiu/nsis-install@v2
+
       - name: Create installer
         run: |
           mkdir builds 2>nul

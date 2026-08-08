@@ -2,5 +2,5 @@ TinyType
 Jon Evans
 Copyright (c) Jon Evans 2026
 Tiny but powerful!
-Build Date: 20260807.171320
+Build Date: 20260807.181616
 Author: Jon Evans
