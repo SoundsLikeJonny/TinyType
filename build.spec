@@ -25,7 +25,9 @@ from datetime import datetime
 import os
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+# PyInstaller exec's the spec file without defining __file__, but always
+# exposes SPECPATH (the directory containing this spec) in the spec namespace.
+sys.path.insert(0, str(Path(SPECPATH).resolve()))
 from project_info import Info
 try:
     import resources
