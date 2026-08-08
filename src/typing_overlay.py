@@ -114,6 +114,7 @@ class TypingOverlay(QWidget):
         self.drag_start_pos = None
         self.quit_prompt_active: bool = False
         self._pending_update_url: str = ""
+        self._pending_update_version: str = ""
 
         self.active_mode: str = MODE_WORDS
         self.word_count_index: int = 2
@@ -288,10 +289,25 @@ class TypingOverlay(QWidget):
     def _update_version_label(self) -> None:
         """Fill label_version with version and author info."""
         secondary = self.config.get("typed_color", "#8b047e")
-        text = (
-            f'<span style="color:{secondary};">{Info.PROJECT_TITLE} v{Info.VERSION}</span>'
-            f' &mdash; {Info.COMPANY}'
-        )
+        if self._pending_update_version:
+            text = (
+                f'<span style="color:{secondary};font-weight:bold;text-decoration:underline;">'
+                f'{Info.PROJECT_TITLE} v{Info.VERSION}</span>'
+                f' &mdash; {Info.COMPANY}<br>'
+                f'<span style="color:{secondary};">Update available: v{self._pending_update_version}'
+                f' — click to update</span>'
+            )
+            self.ui.label_version.setCursor(Qt.PointingHandCursor)
+            self.ui.label_version.setToolTip(
+                f"Click to install TinyType {self._pending_update_version}"
+            )
+        else:
+            text = (
+                f'<span style="color:{secondary};">{Info.PROJECT_TITLE} v{Info.VERSION}</span>'
+                f' &mdash; {Info.COMPANY}'
+            )
+            self.ui.label_version.setCursor(Qt.ArrowCursor)
+            self.ui.label_version.setToolTip("")
         self.ui.label_version.setText(text)
         self.ui.label_version.setTextFormat(Qt.RichText)
         # Reset click handler to "no update" state
@@ -465,6 +481,18 @@ class TypingOverlay(QWidget):
         self.config.set("error_color", theme.get("error", "#FF0000"))
         self.config.set("window_color", theme.get("window", "#000000"))
         self.config.save()
+
+        # Re-render the update badge with the new theme's secondary color.
+        # label_update holds a pixmap, so it cannot be recolored via stylesheet.
+        if self.ui.label_update.isVisible():
+            self._render_update_icon(theme.get("secondary", "#aaaaaa"))
+
+        # Re-render the keys and version labels so their baked-in secondary
+        # color follows the new theme (they are rich-text, not stylesheet-colored).
+        if self.ui.label_keys.isVisible():
+            self._update_keys_label()
+        if self.ui.label_version.isVisible():
+            self._update_version_label()
 
         self._update_display()
         self._update_mode_labels()
@@ -900,7 +928,7 @@ class TypingOverlay(QWidget):
         self.status_anim_frame = (self.status_anim_frame + 1) % 4
         dots = "." * self.status_anim_frame
         color_map = {
-            STATUS_TYPING: "#44aa44",
+            STATUS_TYPING: self.config.get("typed_color", "#aaaaaa"),
             STATUS_STOPPED: "#aaaaaa",
             STATUS_UNFOCUSED: "#aaaa44",
             STATUS_UNRESPONSIVE: "#aa4444",
@@ -1010,24 +1038,27 @@ class TypingOverlay(QWidget):
     # Public API
     # ------------------------------------------------------------------
 
-    def show_update_badge(self, latest_version: str) -> None:
-        """Render the apps-16 Octicon SVG into label_update and make it visible."""
-        secondary = self.config.get("typed_color", "#8b047e")
+    def _render_update_icon(self, color: str) -> None:
+        """Render the apps-16 Octicon SVG into label_update with the given fill color.
+
+        label_update holds a pixmap, so a stylesheet color cannot recolor it —
+        the fill color must be baked into the SVG at render time.
+        """
         svg = (
-            f'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">'
-            f'<path fill="{secondary}" d="M1.5 3.25c0-.966.784-1.75 1.75-1.75h2.5c.966 0 1.75.784 1.75 1.75v2.5'
-            f'A1.75 1.75 0 0 1 5.75 7.5h-2.5A1.75 1.75 0 0 1 1.5 5.75Zm7 0c0-.966.784-1.75 1.75-1.75h2.5'
-            f'c.966 0 1.75.784 1.75 1.75v2.5a1.75 1.75 0 0 1-1.75 1.75h-2.5A1.75 1.75 0 0 1 8.5 5.75Z'
-            f'm-7 7c0-.966.784-1.75 1.75-1.75h2.5c.966 0 1.75.784 1.75 1.75v2.5a1.75 1.75 0 0 1-1.75 1.75h-2.5'
-            f'a1.75 1.75 0 0 1-1.75-1.75Zm7 0c0-.966.784-1.75 1.75-1.75h2.5c.966 0 1.75.784 1.75 1.75v2.5'
-            f'a1.75 1.75 0 0 1-1.75 1.75h-2.5a1.75 1.75 0 0 1-1.75-1.75Z'
-            f'M3.25 3a.25.25 0 0 0-.25.25v2.5c0 .138.112.25.25.25h2.5A.25.25 0 0 0 6 5.75v-2.5'
-            f'A.25.25 0 0 0 5.75 3Zm7 0a.25.25 0 0 0-.25.25v2.5c0 .138.112.25.25.25h2.5'
-            f'a.25.25 0 0 0 .25-.25v-2.5a.25.25 0 0 0-.25-.25Zm-7 7a.25.25 0 0 0-.25.25v2.5'
-            f'c0 .138.112.25.25.25h2.5a.25.25 0 0 0 .25-.25v-2.5a.25.25 0 0 0-.25-.25Z'
-            f'm7 0a.25.25 0 0 0-.25.25v2.5c0 .138.112.25.25.25h2.5a.25.25 0 0 0 .25-.25v-2.5'
-            f'a.25.25 0 0 0-.25-.25Z"/></svg>'
+            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">'
+            f'<path fill="{color}" d="M9.5 3.25a2.25 2.25 0 1 1 3 2.122V6A2.5 2.5 0 0 1 10 8.5H6a1 1 0 0 0-1 1v1.128a2.251 2.251 0 1 1-1.5 0V5.372a2.25 2.25 0 1 1 1.5 0v1.836A2.493 2.493 0 0 1 6 7h4a1 1 0 0 0 1-1v-.628A2.25 2.25 0 0 1 9.5 3.25Zm-6 0a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0Zm8.25-.75a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5ZM4.25 12a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Z"/>'
+            # f'<path fill="{color}" d="M7.25 7.689V2a.75.75 0 0 1 1.5 0v5.689l1.97-1.969a.749.749 0 1 1 1.06 1.06l-3.25 3.25a.749.749 0 0 1-1.06 0L4.22 6.78a.749.749 0 1 1 1.06-1.06l1.97 1.969Z"/>'
+            f'</svg>'
         )
+
+#         svg = (f"""< svg
+#         xmlns = "http://www.w3.org/2000/svg"
+#         viewBox = "0 0 16 16"
+#         width = "16"
+#         height = "16" >< path
+#         fill="{color}"
+#         d = "" > < / path > < / svg >
+# """)
         from PySide6.QtSvg import QSvgRenderer
         from PySide6.QtGui import QPixmap, QPainter
         from PySide6.QtCore import QByteArray, Qt
@@ -1038,24 +1069,21 @@ class TypingOverlay(QWidget):
         renderer.render(painter)
         painter.end()
         self.ui.label_update.setPixmap(pixmap)
+
+    def show_update_badge(self, latest_version: str) -> None:
+        """Render the apps-16 Octicon SVG into label_update and make it visible."""
+        secondary = self.config.get("typed_color", "#8b047e")
+        self._render_update_icon(secondary)
         self.ui.label_update.setToolTip(f"TinyType {latest_version} is available — click to update")
         self.ui.label_update.setVisible(True)
-        # self.
 
         # Make the version label clickable to update too (1.d)
-        secondary = self.config.get("typed_color", "#8b047e")
-        self.ui.label_version.setText(
-            f'<span style="color:{secondary};font-weight:bold;text-decoration:underline;">'
-            f'{Info.PROJECT_TITLE} v{Info.VERSION}</span>'
-            f' &mdash; {Info.COMPANY}<br>'
-            f'<span style="color:{secondary};">Update available: v{latest_version} — click to update</span>'
-        )
-        self.ui.label_version.setTextFormat(Qt.RichText)
-        self.ui.label_version.setCursor(Qt.PointingHandCursor)
-        self.ui.label_version.setToolTip(f"Click to install TinyType {latest_version}")
+        self._pending_update_version = latest_version
+        self._update_version_label()
         # Clicks on label_update / label_version are handled in ChildEventFilter,
         # so the version label must not reset its handler afterwards.
         self._resize_to_fit()
+
 
     def set_update_url(self, url: str) -> None:
         self._pending_update_url = url
