@@ -121,9 +121,27 @@ class Updater(QObject):
             pass
 
     def launch_installer(self) -> None:
-        """Launch the downloaded installer silently and quit the app."""
+        """Launch the downloaded installer (elevated) and quit the app.
+
+        The installer requests admin rights (RequestExecutionLevel admin), so
+        it must be started with the "runas" verb via ShellExecuteW — a plain
+        CreateProcess would fail with WinError 740 (elevation required).
+        """
         if self._installer_path and os.path.exists(self._installer_path):
-            subprocess.Popen([self._installer_path, "/SILENT"])
+            try:
+                import ctypes
+                ctypes.windll.shell32.ShellExecuteW(
+                    None,
+                    "runas",
+                    self._installer_path,
+                    "/SILENT",
+                    None,
+                    1,  # SW_SHOWNORMAL
+                )
+            except Exception:
+                # Fall back to a normal launch (will raise a UAC prompt via
+                # the manifest if the app itself is elevated).
+                subprocess.Popen([self._installer_path, "/SILENT"])
 
     # ------------------------------------------------------------------
     # Version comparison  (PEP 440 / semver aware)
