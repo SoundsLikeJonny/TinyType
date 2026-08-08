@@ -23,7 +23,7 @@ import subprocess
 import tempfile
 
 from PySide6.QtCore import QObject, Signal
-
+# TODO: remove. USed for version testing
 
 class Updater(QObject):
     """Checks GitHub Releases for a newer version and can download+launch the installer."""
