@@ -70,7 +70,7 @@ class Config:
             "window_color": "#000000",
             "bg_opacity": 128,
             "move_per_word": False,
-            "text_align": "center",
+            "text_align": "left",
             "pause_on_focus": False,
             "position": "center",
             "typing_width": 500,
@@ -152,6 +152,111 @@ class Config:
                     "secondary": "#4c566a",
                     "error": "#bf616a",
                     "window": "#2e3440"
+                },
+                {
+                    "name": "Material Midnight",
+                    "primary": "#80cbc4",
+                    "secondary": "#82aaff",
+                    "error": "#f07178",
+                    "window": "#0d1117"
+                },
+                {
+                    "name": "Material Sunset",
+                    "primary": "#ffcc80",
+                    "secondary": "#ff8a65",
+                    "error": "#e57373",
+                    "window": "#1f1b24"
+                },
+                {
+                    "name": "Material Ocean",
+                    "primary": "#80deea",
+                    "secondary": "#40c4ff",
+                    "error": "#ff5252",
+                    "window": "#0e1a2b"
+                },
+                {
+                    "name": "Material Mint",
+                    "primary": "#a5d6a7",
+                    "secondary": "#69f0ae",
+                    "error": "#ff8a80",
+                    "window": "#0f1d1a"
+                },
+                {
+                    "name": "Material Lavender",
+                    "primary": "#d1c4e9",
+                    "secondary": "#b388ff",
+                    "error": "#ff80ab",
+                    "window": "#1b1623"
+                },
+                {
+                    "name": "Material Amber",
+                    "primary": "#ffe082",
+                    "secondary": "#ffd54f",
+                    "error": "#ff8a65",
+                    "window": "#201a10"
+                },
+                {
+                    "name": "Material Rose",
+                    "primary": "#f8bbd0",
+                    "secondary": "#f48fb1",
+                    "error": "#ef5350",
+                    "window": "#241117"
+                },
+                {
+                    "name": "Material Graphite",
+                    "primary": "#b0bec5",
+                    "secondary": "#90a4ae",
+                    "error": "#ff7043",
+                    "window": "#1c1c1c"
+                },
+                {
+                    "name": "Material Candy",
+                    "primary": "#b2ebf2",
+                    "secondary": "#ea80fc",
+                    "error": "#ff5252",
+                    "window": "#1a1420"
+                },
+                {
+                    "name": "Material Cobalt",
+                    "primary": "#90caf9",
+                    "secondary": "#448aff",
+                    "error": "#ff5252",
+                    "window": "#0d1b2a"
+                },
+                {
+                    "name": "Silk",
+                    "primary": "#ffffff",
+                    "secondary": "#ff8fab",
+                    "error": "#ff5252",
+                    "window": "#2b1b3d"
+                },
+                {
+                    "name": "People",
+                    "primary": "#9be8f5",
+                    "secondary": "#f5a9d8",
+                    "error": "#ff5252",
+                    "window": "#12263a"
+                },
+                {
+                    "name": "Humans",
+                    "primary": "#ffd9a3",
+                    "secondary": "#f472b6",
+                    "error": "#ef4444",
+                    "window": "#331c2a"
+                },
+                {
+                    "name": "Friends",
+                    "primary": "#fffb82",
+                    "secondary": "#9d8cff",
+                    "error": "#f97316",
+                    "window": "#1a1a24"
+                },
+                {
+                    "name": "Comrades",
+                    "primary": "#c4c4c4",
+                    "secondary": "#b388ff",
+                    "error": "#e57373",
+                    "window": "#191921"
                 }
             ]
         }
