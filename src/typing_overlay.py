@@ -372,6 +372,7 @@ class TypingOverlay(QWidget):
         height: int = self.config.get("typing_height", 90)
         show_border: bool = self.config.get("show_border", False)
         text_align: str = self.config.get("text_align", "center")
+        move_per_word: bool = self.config.get("move_per_word", False)
 
         self.ui.label_text.setFont(QFont(font_family, font_size))
 
@@ -379,7 +380,11 @@ class TypingOverlay(QWidget):
         self.ui.label_text.setStyleSheet(
             f"padding: 5px; background: transparent; border: {border_style};"
         )
-        if text_align == "left":
+        if move_per_word:
+            # Keep the text visually fixed for the current word: no
+            # caret-fixing padding, which would scroll the text per char.
+            self.ui.label_text.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        elif text_align == "left":
             self.ui.label_text.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         else:
             self.ui.label_text.setAlignment(Qt.AlignCenter)
@@ -601,6 +606,15 @@ class TypingOverlay(QWidget):
     # Display
     # ------------------------------------------------------------------
 
+    def _word_start_at(self, char_index: int) -> int:
+        """Start index of the word containing the character at char_index."""
+        if char_index <= 0:
+            return 0
+        scan = char_index
+        while scan > 0 and self.engine.text[scan - 1] != " ":
+            scan -= 1
+        return scan
+
     def _update_display(self) -> None:
         if self.showing_results:
             return
@@ -613,7 +627,17 @@ class TypingOverlay(QWidget):
         pos: int = self.engine.position
         text: str = self.engine.text
 
-        if text_align == "left":
+        move_per_word: bool = self.config.get("move_per_word", False)
+        if move_per_word:
+            # Move-per-word: anchor the view on the start of the word being
+            # typed so the whole word (and its trailing space) stays in place.
+            anchor = max(0, self.display_word_start)
+            if anchor > pos:
+                anchor = pos  # never anchor ahead of the caret
+            lead = 4
+            visible_start = max(0, anchor - lead)
+            visible_end = min(len(text), anchor + 60)
+        elif text_align == "left":
             # Caret stays at a fixed column; the text scrolls as you type.
             caret_col = 5
             visible_start = max(0, pos - caret_col)
@@ -652,7 +676,11 @@ class TypingOverlay(QWidget):
             else:
                 html_parts.append(f'<span style="color:{untyped_color}">{dc}</span>')
 
-        if text_align == "left":
+        if move_per_word:
+            # Keep the text visually fixed for the current word: no
+            # caret-fixing padding, which would scroll the text per char.
+            self.ui.label_text.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        elif text_align == "left":
             # Left-aligned: keep the caret at a fixed column by padding the
             # window start when the cursor is still near the beginning.
             self.ui.label_text.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
@@ -821,11 +849,10 @@ class TypingOverlay(QWidget):
             else:
                 self.engine.backspace()
             move_per_word: bool = self.config.get("move_per_word", False)
-            if move_per_word and self.engine.position < self.display_word_start:
-                ws = self.engine.position
-                while ws > 0 and self.engine.text[ws - 1] != " ":
-                    ws -= 1
-                self.display_word_start = ws
+            if move_per_word:
+                # Re-anchor to the word containing the caret so the display
+                # steps word-by-word when backspacing.
+                self.display_word_start = self._word_start_at(self.engine.position - 1)
             self._update_display()
             return
 
@@ -838,8 +865,11 @@ class TypingOverlay(QWidget):
             expected = self.engine.text[self.engine.position - 1]
             self.database.update_char_stats(self.user_email, expected, not is_correct)
             move_per_word = self.config.get("move_per_word", False)
-            if move_per_word and expected == " ":
-                self.display_word_start = self.engine.position
+            if move_per_word:
+                # Anchor on the word being typed. The trailing space belongs
+                # to the completed word, so the view only advances when the
+                # next word's first character is typed.
+                self.display_word_start = self._word_start_at(self.engine.position - 1)
             if complete:
                 if self.active_mode == MODE_TIME:
                     self._extend_timed_buffer()
