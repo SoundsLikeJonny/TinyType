@@ -245,8 +245,8 @@ class TypingOverlay(QWidget):
             ("Decrease Opacity",        "hotkey_decrease_opacity",   "Alt+Down",     "Decrease background opacity"),
             ("Toggle Stats Bar",        "hotkey_toggle_stats",       "`",            "Show/hide the stats bar"),
             ("Toggle About Panel",      "hotkey_toggle_about",       "/",            "Show/hide commands & version info"),
-            ("Cycle Test Up",           "hotkey_cycle_test_up",      "Ctrl+Up",      "Switch to the previous typing test"),
-            ("Cycle Test Down",         "hotkey_cycle_test_down",    "Ctrl+Down",    "Switch to the next typing test"),
+            ("Cycle Word Pool Up",           "hotkey_cycle_test_up",      "Ctrl+Up",      "Change which typing word pool is used (up)."),
+            ("Cycle Word Pool Down",         "hotkey_cycle_test_down",    "Ctrl+Down",    "Change which typing word pool is used (down)"),
             ("Switch Mode Left",        "hotkey_cycle_mode_left",    "Left",         "Previous mode (Words/Time/Quotes)"),
             ("Switch Mode Right",       "hotkey_cycle_mode_right",   "Right",        "Next mode (Words/Time/Quotes)"),
             ("Cycle Option Up",         "hotkey_cycle_option_up",    "Up",           "Previous option within the mode"),
@@ -340,6 +340,7 @@ class TypingOverlay(QWidget):
 
         self.setFixedHeight(target)
         self._update_display()
+        self.update()
 
     def _compact_height(self) -> int:
         """Height of the window when the about panel is hidden (details visible)."""
@@ -472,7 +473,7 @@ class TypingOverlay(QWidget):
         self._theme_banner_showing = True
         self.ui.label_status.setText(
             f'<span style="color:{theme.get("secondary", "#8b047e")};'
-            f'font-size:9px;font-weight:bold;">Theme: {theme["name"]}</span>'
+            f'font-size:9px;font-weight:bold;">{theme["name"]}</span>'
         )
         self.theme_banner_timer.start(2000)
 
@@ -1039,6 +1040,7 @@ class TypingOverlay(QWidget):
         self.ui.label_update.setPixmap(pixmap)
         self.ui.label_update.setToolTip(f"TinyType {latest_version} is available — click to update")
         self.ui.label_update.setVisible(True)
+        # self.
 
         # Make the version label clickable to update too (1.d)
         secondary = self.config.get("typed_color", "#8b047e")
@@ -1053,6 +1055,7 @@ class TypingOverlay(QWidget):
         self.ui.label_version.setToolTip(f"Click to install TinyType {latest_version}")
         # Clicks on label_update / label_version are handled in ChildEventFilter,
         # so the version label must not reset its handler afterwards.
+        self._resize_to_fit()
 
     def set_update_url(self, url: str) -> None:
         self._pending_update_url = url
