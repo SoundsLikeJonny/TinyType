@@ -29,6 +29,7 @@ from src.database import Database
 from src.auth import GoogleAuth
 from src.typing_overlay import TypingOverlay
 from src.settings_window import SettingsWindow
+from src.updater import Updater
 from ui.splash import SplashScreen
 
 
@@ -50,16 +51,18 @@ class TinyTypeApp(QObject):
         self.settings_window: SettingsWindow = SettingsWindow(
             self.config, self.database, self.auth
         )
-        
+        self.updater: Updater = Updater(Info.GITHUB_REPO, Info.VERSION)
+
         self._setup_tray()
         self._connect_signals()
-        
+
         self.app.installEventFilter(self)
-        
+
         if self.auth.is_logged_in():
             self.auth.login()
 
         self.splash: SplashScreen = SplashScreen()
+        self.updater.check_async()
 
     
     def _setup_tray(self) -> None:
@@ -96,17 +99,21 @@ class TinyTypeApp(QObject):
         Returns:
             QIcon for system tray
         """
-        from PySide6.QtGui import QPixmap, QPainter
-        from PySide6.QtCore import Qt
+        import os
+        favicon_path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            'resources', 'favicon.png'
+        )
+        if os.path.exists(favicon_path):
+            return QIcon(favicon_path)
         
+        from PySide6.QtGui import QPixmap, QPainter
         pixmap: QPixmap = QPixmap(64, 64)
         pixmap.fill(Qt.transparent)
-        
         painter: QPainter = QPainter(pixmap)
         painter.setBrush(Qt.white)
         painter.drawEllipse(8, 8, 48, 48)
         painter.end()
-        
         return QIcon(pixmap)
     
     def _connect_signals(self) -> None:
@@ -117,6 +124,7 @@ class TinyTypeApp(QObject):
         self.settings_window.settings_changed.connect(
             self._handle_settings_changed
         )
+        self.updater.update_available.connect(self._handle_update_available)
     
     def eventFilter(self, obj: QObject, event: QEvent) -> bool:
         """
@@ -181,12 +189,33 @@ class TinyTypeApp(QObject):
         if self.overlay:
             self.overlay.update_user(self.auth.user_email)
     
+    def _handle_update_available(self, latest_version: str, download_url: str) -> None:
+        """Show update badge on overlay when a new release is found."""
+        if self.overlay:
+            self.overlay.set_update_url(download_url)
+            self.overlay.show_update_badge(latest_version)
+            self.overlay.update_requested.connect(
+                lambda: self._do_update(download_url)
+            )
+
+    def _do_update(self, download_url: str) -> None:
+        """Download the new installer and relaunch."""
+        if not download_url:
+            return
+        self.updater.download_finished.connect(self._launch_installer)
+        self.updater.download_and_install_async(download_url)
+
+    def _launch_installer(self, path: str) -> None:
+        self.updater.launch_installer()
+        self._quit_app()
+
     def _quit_app(self) -> None:
         """Quit the application."""
         if self.overlay:
             self.overlay.close()
         self.settings_window.close()
         self.tray_icon.hide()
+        self.database.close()
         self.app.quit()
     
     def run(self) -> int:
@@ -199,8 +228,35 @@ class TinyTypeApp(QObject):
         return self.app.exec()
 
 
+def _relaunch_unelevated_if_needed() -> None:
+    """If we're running elevated, relaunch unelevated via explorer.exe.
+
+    An elevated TinyType cannot receive keys injected by unelevated
+    remappers (PowerToys Keyboard Manager, AutoHotkey, etc.) due to UIPI.
+    This is most common after an NSIS install where the installer runs
+    elevated and launches the app from the Finish page.
+    """
+    import ctypes
+    import subprocess
+    import os
+
+    if not ctypes.windll.shell32.IsUserAnAdmin():
+        return
+
+    exe_path = sys.executable
+    # PyInstaller one-dir build: sys.executable is TinyType.exe.
+    # Dev mode: python.exe — do not relaunch (would recurse via venv python).
+    if os.path.basename(exe_path).lower() == "python.exe":
+        return
+
+    # Spawn unelevated through explorer.exe, then exit the elevated instance.
+    subprocess.Popen([os.path.join(os.environ.get("WINDIR", "C:\\Windows"), "explorer.exe"), exe_path])
+    sys.exit(0)
+
+
 def main() -> None:
     """Application entry point."""
+    _relaunch_unelevated_if_needed()
     app: TinyTypeApp = TinyTypeApp()
     sys.exit(app.run())
 

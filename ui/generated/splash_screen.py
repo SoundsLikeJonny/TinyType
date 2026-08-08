@@ -22,7 +22,7 @@ class Ui_splash_screen(object):
     def setupUi(self, splash_screen):
         if not splash_screen.objectName():
             splash_screen.setObjectName(u"splash_screen")
-        splash_screen.resize(771, 285)
+        splash_screen.resize(401, 217)
         self.gridLayout = QGridLayout(splash_screen)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setContentsMargins(-1, -1, -1, 0)

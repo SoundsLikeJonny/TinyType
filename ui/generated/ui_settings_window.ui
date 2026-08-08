@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>667</height>
+    <width>640</width>
+    <height>720</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="tab_appearance">
        <attribute name="title">
@@ -71,9 +71,9 @@
           </property>
           <layout class="QFormLayout" name="formLayout_2">
            <item row="0" column="0">
-            <widget class="QLabel" name="label_untypedColor">
+            <widget class="QLabel" name="label_primaryColor">
              <property name="text">
-              <string>Untyped Text Color:</string>
+              <string>Primary Color:</string>
              </property>
             </widget>
            </item>
@@ -85,9 +85,9 @@
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QLabel" name="label_typedColor">
+            <widget class="QLabel" name="label_secondaryColor">
              <property name="text">
-              <string>Typed Text Color:</string>
+              <string>Secondary Color:</string>
              </property>
             </widget>
            </item>
@@ -101,7 +101,7 @@
            <item row="2" column="0">
             <widget class="QLabel" name="label_errorColor">
              <property name="text">
-              <string>Error Text Color:</string>
+              <string>Error Color:</string>
              </property>
             </widget>
            </item>
@@ -113,13 +113,27 @@
             </widget>
            </item>
            <item row="3" column="0">
+            <widget class="QLabel" name="label_windowColor">
+             <property name="text">
+              <string>Window Color:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QPushButton" name="btn_windowColor">
+             <property name="text">
+              <string>Choose Color</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
             <widget class="QLabel" name="label_bgOpacity">
              <property name="text">
               <string>Background Opacity:</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
+           <item row="4" column="1">
             <widget class="QSlider" name="slider_bgOpacity">
              <property name="maximum">
               <number>255</number>
@@ -136,6 +150,85 @@
          </widget>
         </item>
         <item>
+         <widget class="QGroupBox" name="groupBox_themes">
+          <property name="title">
+           <string>Color Themes</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_themes">
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_themes">
+             <item>
+              <widget class="QListWidget" name="listWidget_themes"/>
+             </item>
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_themeButtons">
+               <item>
+                <widget class="QPushButton" name="btn_applyTheme">
+                 <property name="text">
+                  <string>Apply Theme</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="btn_saveTheme">
+                 <property name="text">
+                  <string>Save as New</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="btn_updateTheme">
+                 <property name="text">
+                  <string>Update Theme</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="btn_deleteTheme">
+                 <property name="text">
+                  <string>Delete Theme</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="verticalSpacer_themes">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_themeName">
+             <item>
+              <widget class="QLabel" name="label_themeName">
+               <property name="text">
+                <string>Theme Name:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="lineEdit_themeName">
+               <property name="placeholderText">
+                <string>Enter theme name...</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
          <spacer name="verticalSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -143,7 +236,7 @@
           <property name="sizeHint" stdset="0">
            <size>
             <width>20</width>
-            <height>40</height>
+            <height>20</height>
            </size>
           </property>
          </spacer>
@@ -178,64 +271,10 @@
              </property>
             </widget>
            </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="groupBox_position">
-          <property name="title">
-           <string>Screen Position</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout">
-           <item row="0" column="0">
-            <widget class="QRadioButton" name="radio_topLeft">
+           <item>
+            <widget class="QCheckBox" name="checkBox_pauseOnFocus">
              <property name="text">
-              <string>Top Left</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QRadioButton" name="radio_topCenter">
-             <property name="text">
-              <string>Top Center</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2">
-            <widget class="QRadioButton" name="radio_topRight">
-             <property name="text">
-              <string>Top Right</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QRadioButton" name="radio_center">
-             <property name="text">
-              <string>Center</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QRadioButton" name="radio_bottomLeft">
-             <property name="text">
-              <string>Bottom Left</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QRadioButton" name="radio_bottomCenter">
-             <property name="text">
-              <string>Bottom Center</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="2">
-            <widget class="QRadioButton" name="radio_bottomRight">
-             <property name="text">
-              <string>Bottom Right</string>
+              <string>Pause test on focus loss or 5s inactivity</string>
              </property>
             </widget>
            </item>
@@ -295,16 +334,34 @@
            <item>
             <widget class="QLabel" name="label_testName">
              <property name="text">
-              <string>Test Name:</string>
+              <string>Test Name / Category:</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="lineEdit_testName">
-             <property name="placeholderText">
-              <string>Enter test name...</string>
-             </property>
-            </widget>
+            <layout class="QHBoxLayout" name="horizontalLayout_testName">
+             <item>
+              <widget class="QLineEdit" name="lineEdit_testName">
+               <property name="placeholderText">
+                <string>Enter test name...</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="comboBox_testCategory">
+               <item>
+                <property name="text">
+                 <string>Word Pool</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Quote</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item>
             <widget class="QLabel" name="label_testText">
@@ -389,6 +446,34 @@
              </property>
             </widget>
            </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_textAlign">
+             <property name="text">
+              <string>Caret Alignment:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_align">
+             <item>
+              <widget class="QRadioButton" name="radio_alignCenter">
+               <property name="text">
+                <string>Centered</string>
+               </property>
+               <property name="checked">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="radio_alignLeft">
+               <property name="text">
+                <string>Left-aligned</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
           </layout>
          </widget>
         </item>
@@ -400,7 +485,7 @@
           <property name="sizeHint" stdset="0">
            <size>
             <width>20</width>
-            <height>40</height>
+            <height>20</height>
            </size>
           </property>
          </spacer>
@@ -470,77 +555,236 @@
         </item>
        </layout>
       </widget>
-       <widget class="QWidget" name="tab_keybindings">
-        <attribute name="title">
-         <string>Keybindings</string>
-        </attribute>
-        <layout class="QVBoxLayout" name="verticalLayout_11">
-         <item>
-          <widget class="QGroupBox" name="groupBox_keybindings">
-           <property name="title">
-            <string>Global Hotkeys</string>
-           </property>
-           <layout class="QFormLayout" name="formLayout_5">
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_increaseOpacity">
-              <property name="text">
-               <string>Increase Opacity:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QKeySequenceEdit" name="keySeq_increaseOpacity">
-              <property name="keySequence">
-               <string>Ctrl+Up</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_decreaseOpacity">
-              <property name="text">
-               <string>Decrease Opacity:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QKeySequenceEdit" name="keySeq_decreaseOpacity">
-              <property name="keySequence">
-               <string>Ctrl+Down</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_keybindingInfo">
-           <property name="text">
-            <string>Click on a key sequence field and press your desired key combination. These work globally when the typing overlay is visible.</string>
-           </property>
-           <property name="wordWrap">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="verticalSpacer_4">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </widget>
+      <widget class="QWidget" name="tab_keybindings">
+       <attribute name="title">
+        <string>Keybindings</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_11">
+        <item>
+         <widget class="QGroupBox" name="groupBox_keybindings">
+          <property name="title">
+           <string>Key Commands</string>
+          </property>
+          <layout class="QFormLayout" name="formLayout_5">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_cycleModeLeft">
+             <property name="toolTip">
+              <string>Press this key to cycle to the previous test mode: Words → Quotes → Time → Words. Only works when no test is running.</string>
+             </property>
+             <property name="text">
+              <string>Switch Mode Left (Words/Time/Quotes):</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QKeySequenceEdit" name="keySeq_cycleOptionLeft">
+             <property name="keySequence">
+              <string>Left</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_cycleModeRight">
+             <property name="toolTip">
+              <string>Press this key to cycle to the next test mode: Words → Time → Quotes → Words. Only works when no test is running.</string>
+             </property>
+             <property name="text">
+              <string>Switch Mode Right (Words/Time/Quotes):</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QKeySequenceEdit" name="keySeq_cycleOptionRight">
+             <property name="keySequence">
+              <string>Right</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_cycleOptionUp">
+             <property name="toolTip">
+              <string>Press this key to increase the value of the current mode option — e.g. 25→50 words, 30s→60s, or short→medium quotes. Only works when no test is running.</string>
+             </property>
+             <property name="text">
+              <string>Cycle Test Variation Up (within mode):</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QKeySequenceEdit" name="keySeq_cycleTestUp">
+             <property name="keySequence">
+              <string>Up</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_cycleOptionDown">
+             <property name="toolTip">
+              <string>Press this key to decrease the value of the current mode option — e.g. 50→25 words, 60s→30s, or medium→short quotes. Only works when no test is running.</string>
+             </property>
+             <property name="text">
+              <string>Cycle Test Variation Down (within mode):</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QKeySequenceEdit" name="keySeq_cycleTestDown">
+             <property name="keySequence">
+              <string>Down</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_cycleTestUp">
+             <property name="toolTip">
+              <string>Press this key to switch to the previous typing test in your list (e.g. Default → Test 2).</string>
+             </property>
+             <property name="text">
+              <string>Cycle Test Text Up:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QKeySequenceEdit" name="keySeq_cycleTestUpKey">
+             <property name="keySequence">
+              <string>Ctrl+Up</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="label_cycleTestDown">
+             <property name="toolTip">
+              <string>Press this key to switch to the next typing test in your list (e.g. Test 2 → Default).</string>
+             </property>
+             <property name="text">
+              <string>Cycle Test Text Down:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QKeySequenceEdit" name="keySeq_cycleTestDownKey">
+             <property name="keySequence">
+              <string>Ctrl+Down</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="label_toggleStats">
+             <property name="toolTip">
+              <string>Press this key to show or hide the stats bar (WPM, accuracy, time, and the Words/Time/Quotes mode selector).</string>
+             </property>
+             <property name="text">
+              <string>Toggle Stats Bar:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QKeySequenceEdit" name="keySeq_toggleStats">
+             <property name="keySequence">
+              <string>`</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0">
+            <widget class="QLabel" name="label_increaseOpacity">
+             <property name="toolTip">
+              <string>Press this key to make the overlay background more opaque (0–255).</string>
+             </property>
+             <property name="text">
+              <string>Increase Opacity:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="1">
+            <widget class="QKeySequenceEdit" name="keySeq_increaseOpacity">
+             <property name="keySequence">
+              <string>Ctrl+Shift+Up</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="0">
+            <widget class="QLabel" name="label_decreaseOpacity">
+             <property name="toolTip">
+              <string>Press this key to make the overlay background more transparent (0–255).</string>
+             </property>
+             <property name="text">
+              <string>Decrease Opacity:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="1">
+            <widget class="QKeySequenceEdit" name="keySeq_decreaseOpacity">
+             <property name="keySequence">
+              <string>Ctrl+Shift+Down</string>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="0">
+            <widget class="QLabel" name="label_alignLeft">
+             <property name="toolTip">
+              <string>Press this key to switch the typing caret to left-aligned (stays at a fixed column).</string>
+             </property>
+             <property name="text">
+              <string>Caret Align Left:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="1">
+            <widget class="QKeySequenceEdit" name="keySeq_alignLeft">
+             <property name="keySequence">
+              <string>Ctrl+Alt+Left</string>
+             </property>
+            </widget>
+           </item>
+           <item row="10" column="0">
+            <widget class="QLabel" name="label_alignCenter">
+             <property name="toolTip">
+              <string>Press this key to switch the typing caret to centered in the overlay.</string>
+             </property>
+             <property name="text">
+              <string>Caret Align Center:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="10" column="1">
+            <widget class="QKeySequenceEdit" name="keySeq_alignCenter">
+             <property name="keySequence">
+              <string>Ctrl+Alt+Right</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_keybindingInfo">
+          <property name="text">
+           <string>Click a field and press your desired key combination. Overlay keys work when the typing overlay is focused.</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout">
+     <layout class="QHBoxLayout" name="horizontalLayout_bottom">
       <item>
        <widget class="QPushButton" name="btn_startTyping">
         <property name="text">

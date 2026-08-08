@@ -8,6 +8,9 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+builds/
+build_log.txt
+info.txt
 *.db
 *.sqlite
 *.sqlite3
@@ -17,3 +20,10 @@ token.json
 venv/
 .vscode/
 .idea/
+
+# Local user data (config + typing stats) - stored in %APPDATA%\TinyType at runtime
+data/
+# Cloudflare OAuth worker - contains client secret, deploy manually
+oauth_server/
+# Agent workspace
+.abacusai/

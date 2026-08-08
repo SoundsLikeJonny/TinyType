@@ -25,12 +25,14 @@ from datetime import datetime
 import os
 from pathlib import Path
 from project_info import Info
-import resources
+try:
+    import resources
+except ImportError:
+    pass
 
 
-#icon_name = Path().absolute().__str__()
-#icon_name = f'{icon_name}{Info.ICON_PATH[1:]}'
-#print(icon_name)
+icon_name = str(Path.joinpath(Path().absolute(), 'resources', 'favicon.ico'))
+print(f'icon_name: {icon_name}')
 
 current_date_time = str(datetime.now().strftime("%Y_%m_%d-%H_%M_%S"))
 
@@ -50,11 +52,17 @@ try:
 except Exception as e:
         print(str(e))
 
-parent_folder = str(Path.joinpath(Path().absolute(), 'builds', f'{Info.PROJECT_TITLE}_{current_date_time}'))
-workfolder = f'{parent_folder}'
-
-os.makedirs(workfolder)
-os.startfile(workfolder)
+if os.environ.get("CI"):
+    workfolder = str(Path.joinpath(Path().absolute(), 'dist'))
+    os.makedirs(workfolder, exist_ok=True)
+else:
+    parent_folder = str(Path.joinpath(Path().absolute(), 'builds', f'{Info.PROJECT_TITLE}_{current_date_time}'))
+    workfolder = f'{parent_folder}'
+    os.makedirs(workfolder)
+    try:
+        os.startfile(workfolder)
+    except Exception:
+        pass
 
 PyInstaller.config.CONF['distpath'] = f"{workfolder}"
 
@@ -104,7 +112,7 @@ exe = EXE(pyz,
           target_arch=None,
           codesign_identity=None,
           entitlements_file=None,
-#          icon=icon_name
+          icon=icon_name
           )
 coll = COLLECT(exe,
                a.binaries,

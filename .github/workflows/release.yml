@@ -1,0 +1,155 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [master]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      # ── Checkout ──────────────────────────────────────────────
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # full history for changelog
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── Python ────────────────────────────────────────────────
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install pyinstaller PySide6 packaging
+
+      # ── Version bump ──────────────────────────────────────────
+      - name: Bump version
+        id: version
+        shell: python
+        run: |
+          import re, os
+
+          with open("project_info.py") as f:
+              text = f.read()
+
+          m = re.search(r"VERSION:\s*str\s*=\s*'([^']+)'", text)
+          old = m.group(1)
+
+          # Parse current version
+          base_match = re.match(r"(\d+)\.(\d+)\.(\d+)", old)
+          major, minor, patch = (int(x) for x in base_match.groups())
+
+          beta_match = re.search(r"-beta\.(\d+)", old)
+
+          # Read commit message to decide bump type
+          msg = os.environ.get("COMMIT_MSG", "").lower()
+
+          if "[major]" in msg:
+              major += 1; minor = 0; patch = 0
+              new = f"{major}.{minor}.{patch}"
+          elif "[minor]" in msg:
+              minor += 1; patch = 0
+              new = f"{major}.{minor}.{patch}"
+          elif "[stable]" in msg and beta_match:
+              # Promote beta to stable (drop the beta suffix, keep version)
+              new = f"{major}.{minor}.{patch}"
+          elif "[beta]" in msg or beta_match:
+              beta_num = (beta_match.group(1) if beta_match else 0)
+              beta_num = int(beta_num) + 1
+              if not beta_match:
+                  patch += 1
+              new = f"{major}.{minor}.{patch}-beta.{beta_num}"
+          else:
+              patch += 1
+              new = f"{major}.{minor}.{patch}"
+
+          text = text.replace(f"VERSION: str = '{old}'", f"VERSION: str = '{new}'")
+          with open("project_info.py", "w") as f:
+              f.write(text)
+
+          is_pre = "true" if "-beta" in new or "-alpha" in new or "-rc" in new else "false"
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as gh:
+              gh.write(f"old={old}\n")
+              gh.write(f"new={new}\n")
+              gh.write(f"tag=v{new}\n")
+              gh.write(f"prerelease={is_pre}\n")
+
+          print(f"Version: {old} -> {new}")
+        env:
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+
+      # ── Commit version bump ───────────────────────────────────
+      - name: Commit version bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add project_info.py
+          git diff --cached --quiet || git commit -m "Bump version to ${{ steps.version.outputs.new }} [skip ci]"
+          git push
+
+      # ── Generate changelog ────────────────────────────────────
+      - name: Generate changelog
+        id: changelog
+        shell: python
+        run: |
+          import subprocess, os
+
+          # Find previous tag
+          result = subprocess.run(
+              ["git", "describe", "--tags", "--abbrev=0", "HEAD~1"],
+              capture_output=True, text=True
+          )
+          prev_tag = result.stdout.strip() if result.returncode == 0 else ""
+
+          if prev_tag:
+              log_range = f"{prev_tag}..HEAD"
+          else:
+              log_range = "HEAD~20..HEAD"
+
+          result = subprocess.run(
+              ["git", "log", log_range, "--pretty=format:- %s (%h)", "--no-merges"],
+              capture_output=True, text=True
+          )
+          changelog = result.stdout.strip() or "- Initial release"
+
+          # Filter out [skip ci] commits
+          lines = [l for l in changelog.splitlines() if "[skip ci]" not in l]
+          changelog = "\n".join(lines) or "- Maintenance release"
+
+          # Write to file for the release body
+          with open("RELEASE_NOTES.md", "w") as f:
+              f.write(f"## What's Changed\n\n{changelog}\n")
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as gh:
+              gh.write("notes_file=RELEASE_NOTES.md\n")
+
+          print(changelog)
+
+      # ── PyInstaller build ─────────────────────────────────────
+      - name: Build with PyInstaller
+        run: |
+          pyinstaller build.spec
+
+      # ── NSIS installer ────────────────────────────────────────
+      - name: Create installer
+        run: |
+          mkdir builds 2>nul
+          makensis /DAPP_VERSION=${{ steps.version.outputs.new }} /DBUILD_DIR=dist\TinyType installer.nsi
+        shell: cmd
+
+      # ── Create GitHub Release ─────────────────────────────────
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: TinyType ${{ steps.version.outputs.new }}
+          body_path: RELEASE_NOTES.md
+          prerelease: ${{ steps.version.outputs.prerelease }}
+          files: |
+            builds/TinyType-Setup-${{ steps.version.outputs.new }}.exe
