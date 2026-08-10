@@ -30,7 +30,7 @@ from src.database import Database
 
 WORD_COUNT_OPTIONS: List[int] = [10, 25, 50, 100]
 TIME_OPTIONS: List[int] = [15, 30, 60, 120]
-QUOTE_OPTIONS: List[str] = ["short", "medium", "long"]
+QUOTE_OPTIONS: List[str] = ["short", "medium", "long", "extreme"]
 
 MODE_WORDS = "words"
 MODE_TIME = "time"
@@ -120,6 +120,7 @@ class TypingOverlay(QWidget):
         self.word_count_index: int = 2
         self.time_index: int = 1
         self.quote_index: int = 0
+        self.current_quote_author: str = ""
 
         self.paused: bool = False
         self.paused_elapsed: float = 0.0
@@ -444,6 +445,8 @@ class TypingOverlay(QWidget):
         idx = modes.index(self.active_mode)
         self.active_mode = modes[(idx + direction) % len(modes)]
         self._update_mode_labels()
+        if self.engine.start_time is None:
+            self._start_new_test()
 
     def _cycle_mode_option(self, mode: str, direction: int = 1) -> None:
         self.active_mode = mode
@@ -555,21 +558,55 @@ class TypingOverlay(QWidget):
         custom_text: str = typing_tests[active_test].get("text", "")
         self.current_test_name = typing_tests[active_test]["name"]
 
-        if self.active_mode == MODE_TIME:
-            # Generate enough words so even a 300 WPM typist can't finish
-            # in the allotted time. 300 WPM = 300 words/min.
-            time_limit: int = TIME_OPTIONS[self.time_index]
-            word_count = int((time_limit / 60.0) * 300 * 1.5) + 50
+        if self.active_mode == MODE_QUOTES:
+            self._load_quote()
         else:
-            word_count = WORD_COUNT_OPTIONS[self.word_count_index]
+            if self.active_mode == MODE_TIME:
+                # Generate enough words so even a 300 WPM typist can't finish
+                # in the allotted time. 300 WPM = 300 words/min.
+                time_limit: int = TIME_OPTIONS[self.time_index]
+                word_count = int((time_limit / 60.0) * 300 * 1.5) + 50
+            else:
+                word_count = WORD_COUNT_OPTIONS[self.word_count_index]
 
-        self.engine.generate_text(
-            word_count,
-            self.problem_chars[:5] if self.problem_chars else None,
-            custom_text
-        )
+            self.engine.generate_text(
+                word_count,
+                self.problem_chars[:5] if self.problem_chars else None,
+                custom_text
+            )
         self._update_display()
         self._update_mode_labels()
+
+    def _quote_length(self, text: str) -> str:
+        """Classify a quote by its character count into a length bucket."""
+        n = len(text)
+        if n < 100:
+            return "short"
+        if n < 200:
+            return "medium"
+        if n < 300:
+            return "long"
+        return "extreme"
+
+    def _load_quote(self) -> None:
+        """Pick a random quote matching the selected length and load it."""
+        import random
+        quotes: list = self.config.get_quotes()
+        length: str = QUOTE_OPTIONS[self.quote_index]
+        pool = [q for q in quotes if self._quote_length(q.get("text", "")) == length]
+        if not pool:
+            pool = quotes
+        quote = random.choice(pool)
+        self.engine.text = quote.get("text", "")
+        self.engine.position = 0
+        self.engine.mistakes = {}
+        self.engine.error_positions = []
+        self.engine.start_time = None
+        self.engine.end_time = None
+        self.engine.total_chars = 0
+        self.engine.error_count = 0
+        self.current_quote_author = quote.get("author", "")
+        self.current_test_name = f"Quote ({length})"
 
     def _extend_timed_buffer(self) -> None:
         """Append more random words to the engine text so a timed test never ends early."""
@@ -926,6 +963,11 @@ class TypingOverlay(QWidget):
         if self._theme_banner_showing:
             return
 
+        # While a quote test is active, show the quote's author as credit.
+        if self.active_mode == MODE_QUOTES and self.current_quote_author:
+            self._show_quote_credit()
+            return
+
         # Never started or already showing results — clear only if not in a
         # paused-but-was-running state (so status persists while paused)
         if self.showing_results:
@@ -958,6 +1000,13 @@ class TypingOverlay(QWidget):
             self.engine.start_time = time_module.time() - self.paused_elapsed
 
         self._set_status(new_status)
+
+    def _show_quote_credit(self) -> None:
+        """Show the current quote's author in the status label."""
+        color = self.config.get("typed_color", "#8b047e")
+        self.ui.label_status.setText(
+            f'<span style="color:{color};font-size:9px;">— {self.current_quote_author}</span>'
+        )
 
     def _set_status(self, status: str) -> None:
         self.status_text = status
