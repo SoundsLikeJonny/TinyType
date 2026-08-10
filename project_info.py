@@ -28,7 +28,7 @@ class Info:
     ICON_PATH: str = f'{RESOURCES_PATH}/favicon.ico'
     SPLASH_PATH: str = f'{RESOURCES_PATH}/splash.png'
     DOCS_LINK: str = ''
-    VERSION: str = '0.1.0-beta.14'
+    VERSION: str = '0.1.0-beta.15'
     GITHUB_REPO: str = 'SoundsLikeJonny/TinyType'
 
 
