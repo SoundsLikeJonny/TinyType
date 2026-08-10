@@ -470,38 +470,38 @@ class Config:
                 },
                 {
                     "name": "Midnight",
-                    "primary": "#9e9e9e",
-                    "secondary": "#e0e0e0",
+                    "primary": "#8a9bb0",
+                    "secondary": "#c8d4e0",
                     "error": "#ef5350",
-                    "window": "#000000"
+                    "window": "#05070a"
                 },
                 {
                     "name": "Void",
-                    "primary": "#bdbdbd",
-                    "secondary": "#f5f5f5",
+                    "primary": "#a89bb8",
+                    "secondary": "#d8d0e0",
                     "error": "#ef5350",
-                    "window": "#050505"
+                    "window": "#0a070d"
                 },
                 {
                     "name": "Onyx",
-                    "primary": "#a0a0a0",
-                    "secondary": "#d0d0d0",
+                    "primary": "#8fae9a",
+                    "secondary": "#cfe0d4",
                     "error": "#ef5350",
-                    "window": "#0a0a0a"
+                    "window": "#060a07"
                 },
                 {
                     "name": "Charcoal",
-                    "primary": "#8a8a8a",
-                    "secondary": "#c0c0c0",
+                    "primary": "#b09a8a",
+                    "secondary": "#e0d0c4",
                     "error": "#ef5350",
-                    "window": "#101010"
+                    "window": "#0d0906"
                 },
                 {
                     "name": "Pitch",
-                    "primary": "#7a7a7a",
-                    "secondary": "#b0b0b0",
+                    "primary": "#7f9aa0",
+                    "secondary": "#b8ccd0",
                     "error": "#ef5350",
-                    "window": "#000000"
+                    "window": "#040708"
                 }
             ],
             "custom_themes": []
