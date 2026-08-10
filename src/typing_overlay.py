@@ -664,8 +664,18 @@ class TypingOverlay(QWidget):
                 dc = char
 
             if i < pos:
-                color = error_color if i in self.engine.error_positions else typed_color
-                html_parts.append(f'<span style="color:{color}">{dc}</span>')
+                if i in self.engine.error_positions:
+                    if char == " ":
+                        # A space error is invisible as text, so highlight the
+                        # background with the error color instead.
+                        html_parts.append(
+                            f'<span style="color:{error_color};'
+                            f'background-color:{error_color};">{dc}</span>'
+                        )
+                    else:
+                        html_parts.append(f'<span style="color:{error_color}">{dc}</span>')
+                else:
+                    html_parts.append(f'<span style="color:{typed_color}">{dc}</span>')
             elif i == pos:
                 caret_bg = typed_color
                 window_color: str = self.config.get("window_color", "#000000")
