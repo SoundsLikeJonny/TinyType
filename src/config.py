@@ -397,6 +397,111 @@ class Config:
                     "secondary": "#1a237e",
                     "error": "#d50000",
                     "window": "#ffd600"
+                },
+                {
+                    "name": "Espresso",
+                    "primary": "#d7ccc8",
+                    "secondary": "#efebe9",
+                    "error": "#ff8a80",
+                    "window": "#3e2723"
+                },
+                {
+                    "name": "Cappuccino",
+                    "primary": "#bcaaa4",
+                    "secondary": "#f5f5f5",
+                    "error": "#ff8a80",
+                    "window": "#4e342e"
+                },
+                {
+                    "name": "Mocha",
+                    "primary": "#a1887f",
+                    "secondary": "#d7ccc8",
+                    "error": "#ff8a80",
+                    "window": "#2d1f1a"
+                },
+                {
+                    "name": "Java",
+                    "primary": "#8d6e63",
+                    "secondary": "#d7ccc8",
+                    "error": "#ff8a80",
+                    "window": "#1f1410"
+                },
+                {
+                    "name": "Caramel",
+                    "primary": "#ffcc80",
+                    "secondary": "#4e342e",
+                    "error": "#c62828",
+                    "window": "#5d4037"
+                },
+                {
+                    "name": "Grey Fog",
+                    "primary": "#bdbdbd",
+                    "secondary": "#fafafa",
+                    "error": "#ef5350",
+                    "window": "#424242"
+                },
+                {
+                    "name": "Silver",
+                    "primary": "#e0e0e0",
+                    "secondary": "#ffffff",
+                    "error": "#ef5350",
+                    "window": "#616161"
+                },
+                {
+                    "name": "Graphite Grey",
+                    "primary": "#9e9e9e",
+                    "secondary": "#eeeeee",
+                    "error": "#ef5350",
+                    "window": "#212121"
+                },
+                {
+                    "name": "Stone",
+                    "primary": "#b0bec5",
+                    "secondary": "#eceff1",
+                    "error": "#ef5350",
+                    "window": "#37474f"
+                },
+                {
+                    "name": "Ash",
+                    "primary": "#cfd8dc",
+                    "secondary": "#ffffff",
+                    "error": "#ef5350",
+                    "window": "#263238"
+                },
+                {
+                    "name": "Midnight",
+                    "primary": "#9e9e9e",
+                    "secondary": "#e0e0e0",
+                    "error": "#ef5350",
+                    "window": "#000000"
+                },
+                {
+                    "name": "Void",
+                    "primary": "#bdbdbd",
+                    "secondary": "#f5f5f5",
+                    "error": "#ef5350",
+                    "window": "#050505"
+                },
+                {
+                    "name": "Onyx",
+                    "primary": "#a0a0a0",
+                    "secondary": "#d0d0d0",
+                    "error": "#ef5350",
+                    "window": "#0a0a0a"
+                },
+                {
+                    "name": "Charcoal",
+                    "primary": "#8a8a8a",
+                    "secondary": "#c0c0c0",
+                    "error": "#ef5350",
+                    "window": "#101010"
+                },
+                {
+                    "name": "Pitch",
+                    "primary": "#7a7a7a",
+                    "secondary": "#b0b0b0",
+                    "error": "#ef5350",
+                    "window": "#000000"
                 }
             ],
             "custom_themes": []
