@@ -257,6 +257,146 @@ class Config:
                     "secondary": "#b388ff",
                     "error": "#e57373",
                     "window": "#191921"
+                },
+                {
+                    "name": "Paper White",
+                    "primary": "#9e9e9e",
+                    "secondary": "#212121",
+                    "error": "#d32f2f",
+                    "window": "#f5f5f5"
+                },
+                {
+                    "name": "Cloud",
+                    "primary": "#90a4ae",
+                    "secondary": "#263238",
+                    "error": "#e53935",
+                    "window": "#eef2f7"
+                },
+                {
+                    "name": "Linen",
+                    "primary": "#bcaaa4",
+                    "secondary": "#3e2723",
+                    "error": "#c62828",
+                    "window": "#faf6f0"
+                },
+                {
+                    "name": "Mint Cream",
+                    "primary": "#80cbc4",
+                    "secondary": "#1b5e20",
+                    "error": "#c62828",
+                    "window": "#f0f7f4"
+                },
+                {
+                    "name": "Lavender Mist",
+                    "primary": "#b39ddb",
+                    "secondary": "#311b92",
+                    "error": "#c62828",
+                    "window": "#f5f2fa"
+                },
+                {
+                    "name": "Sky",
+                    "primary": "#81d4fa",
+                    "secondary": "#0d47a1",
+                    "error": "#c62828",
+                    "window": "#eef6fb"
+                },
+                {
+                    "name": "Sand",
+                    "primary": "#d7ccc8",
+                    "secondary": "#4e342e",
+                    "error": "#c62828",
+                    "window": "#faf5ec"
+                },
+                {
+                    "name": "Rose Petal",
+                    "primary": "#f48fb1",
+                    "secondary": "#880e4f",
+                    "error": "#c62828",
+                    "window": "#fdf2f4"
+                },
+                {
+                    "name": "Slate",
+                    "primary": "#b0bec5",
+                    "secondary": "#37474f",
+                    "error": "#c62828",
+                    "window": "#eceff1"
+                },
+                {
+                    "name": "Butter",
+                    "primary": "#ffe082",
+                    "secondary": "#5d4037",
+                    "error": "#c62828",
+                    "window": "#fdf9e9"
+                },
+                {
+                    "name": "Neon Sunset",
+                    "primary": "#ffea00",
+                    "secondary": "#ffffff",
+                    "error": "#000000",
+                    "window": "#ff3d00"
+                },
+                {
+                    "name": "Electric Violet",
+                    "primary": "#00e5ff",
+                    "secondary": "#ffffff",
+                    "error": "#ff1744",
+                    "window": "#7c4dff"
+                },
+                {
+                    "name": "Cyber Lime",
+                    "primary": "#00b0ff",
+                    "secondary": "#1a237e",
+                    "error": "#ff1744",
+                    "window": "#00e676"
+                },
+                {
+                    "name": "Hot Magenta",
+                    "primary": "#00e5ff",
+                    "secondary": "#ffffff",
+                    "error": "#000000",
+                    "window": "#f50057"
+                },
+                {
+                    "name": "Tangerine",
+                    "primary": "#ffea00",
+                    "secondary": "#3e2723",
+                    "error": "#d50000",
+                    "window": "#ff9100"
+                },
+                {
+                    "name": "Aqua Pop",
+                    "primary": "#ffea00",
+                    "secondary": "#ffffff",
+                    "error": "#d50000",
+                    "window": "#00b8d4"
+                },
+                {
+                    "name": "Grape Soda",
+                    "primary": "#ffea00",
+                    "secondary": "#ffffff",
+                    "error": "#000000",
+                    "window": "#aa00ff"
+                },
+                {
+                    "name": "Crimson",
+                    "primary": "#ffea00",
+                    "secondary": "#ffffff",
+                    "error": "#000000",
+                    "window": "#d50000"
+                },
+                {
+                    "name": "Ocean Wave",
+                    "primary": "#00e676",
+                    "secondary": "#ffffff",
+                    "error": "#d50000",
+                    "window": "#00b0ff"
+                },
+                {
+                    "name": "Sunshine",
+                    "primary": "#ff3d00",
+                    "secondary": "#1a237e",
+                    "error": "#d50000",
+                    "window": "#ffd600"
                 }
             ]
         }
