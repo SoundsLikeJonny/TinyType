@@ -1007,6 +1007,8 @@ class TypingOverlay(QWidget):
         self.ui.label_status.setText(
             f'<span style="color:{color};font-size:9px;">— {self.current_quote_author}</span>'
         )
+        # Let the user hover to see the full author if it gets cut off.
+        self.ui.label_status.setToolTip(self.current_quote_author)
 
     def _set_status(self, status: str) -> None:
         self.status_text = status
