@@ -234,18 +234,18 @@ class SettingsWindow(QMainWindow):
 
     def _load_themes_list(self) -> None:
         self.ui.listWidget_themes.clear()
-        themes: list = self.config.get("themes", [])
+        themes: list = self.config.get_themes()
         for theme in themes:
             self.ui.listWidget_themes.addItem(theme["name"])
 
     def _preview_theme_name(self, row: int) -> None:
-        themes: list = self.config.get("themes", [])
+        themes: list = self.config.get_themes()
         if 0 <= row < len(themes):
             self.ui.lineEdit_themeName.setText(themes[row]["name"])
 
     def _apply_theme(self) -> None:
         row = self.ui.listWidget_themes.currentRow()
-        themes: list = self.config.get("themes", [])
+        themes: list = self.config.get_themes()
         if 0 <= row < len(themes):
             theme = themes[row]
             self.config.set("untyped_color", theme.get("primary", "#808080"))
@@ -266,36 +266,41 @@ class SettingsWindow(QMainWindow):
             "error": self.config.get("error_color", "#FF0000"),
             "window": self.config.get("window_color", "#000000"),
         }
-        themes: list = self.config.get("themes", [])
-        themes.append(new_theme)
-        self.config.set("themes", themes)
+        custom: list = self.config.get("custom_themes", [])
+        custom.append(new_theme)
+        self.config.set_custom_themes(custom)
         self.config.save()
         self._load_themes_list()
-        self.ui.listWidget_themes.setCurrentRow(len(themes) - 1)
+        built_in_count = len(self.config.get("themes", []))
+        self.ui.listWidget_themes.setCurrentRow(built_in_count + len(custom) - 1)
 
     def _update_theme(self) -> None:
         row = self.ui.listWidget_themes.currentRow()
-        themes: list = self.config.get("themes", [])
-        if 0 <= row < len(themes):
-            name = self.ui.lineEdit_themeName.text().strip() or themes[row]["name"]
-            themes[row] = {
+        built_in_count = len(self.config.get("themes", []))
+        custom: list = self.config.get("custom_themes", [])
+        custom_row = row - built_in_count
+        if 0 <= custom_row < len(custom):
+            name = self.ui.lineEdit_themeName.text().strip() or custom[custom_row]["name"]
+            custom[custom_row] = {
                 "name": name,
                 "primary": self.config.get("untyped_color", "#808080"),
                 "secondary": self.config.get("typed_color", "#8b047e"),
                 "error": self.config.get("error_color", "#FF0000"),
                 "window": self.config.get("window_color", "#000000"),
             }
-            self.config.set("themes", themes)
+            self.config.set_custom_themes(custom)
             self.config.save()
             self._load_themes_list()
             self.ui.listWidget_themes.setCurrentRow(row)
 
     def _delete_theme(self) -> None:
         row = self.ui.listWidget_themes.currentRow()
-        themes: list = self.config.get("themes", [])
-        if 0 <= row < len(themes):
-            themes.pop(row)
-            self.config.set("themes", themes)
+        built_in_count = len(self.config.get("themes", []))
+        custom: list = self.config.get("custom_themes", [])
+        custom_row = row - built_in_count
+        if 0 <= custom_row < len(custom):
+            custom.pop(custom_row)
+            self.config.set_custom_themes(custom)
             self.config.save()
             self._load_themes_list()
 

@@ -398,7 +398,8 @@ class Config:
                     "error": "#d50000",
                     "window": "#ffd600"
                 }
-            ]
+            ],
+            "custom_themes": []
         }
     
     def load(self) -> None:
@@ -406,13 +407,20 @@ class Config:
         if os.path.exists(self.config_path):
             with open(self.config_path, 'r') as f:
                 loaded: Dict[str, Any] = json.load(f)
+                # The built-in theme list always comes from the app version so
+                # that new releases can add themes. Only the current theme (the
+                # four color keys) and any user-created custom themes persist.
+                loaded.pop("themes", None)
                 self.settings.update(loaded)
     
     def save(self) -> None:
         """Save configuration to file."""
         os.makedirs(os.path.dirname(self.config_path), exist_ok=True)
+        # The built-in theme list is not persisted; it always comes from the
+        # app version. Only the current theme colors and custom themes save.
+        to_save = {k: v for k, v in self.settings.items() if k != "themes"}
         with open(self.config_path, 'w') as f:
-            json.dump(self.settings, f, indent=2)
+            json.dump(to_save, f, indent=2)
     
     def get(self, key: str, default: Any = None) -> Any:
         """
@@ -436,3 +444,16 @@ class Config:
             value: Configuration value
         """
         self.settings[key] = value
+
+    def get_themes(self) -> list:
+        """
+        Return all available themes: the built-in defaults (from the app
+        version) plus any user-created custom themes.
+        """
+        built_in = self.settings.get("themes", [])
+        custom = self.settings.get("custom_themes", [])
+        return list(built_in) + list(custom)
+
+    def set_custom_themes(self, themes: list) -> None:
+        """Persist the user-created theme list."""
+        self.settings["custom_themes"] = themes

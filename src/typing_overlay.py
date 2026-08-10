@@ -459,7 +459,7 @@ class TypingOverlay(QWidget):
 
     def _cycle_theme(self, direction: int) -> None:
         """Apply the next/previous saved color theme and show its name briefly."""
-        themes: list = self.config.get("themes", [])
+        themes: list = self.config.get_themes()
         if not themes:
             return
 
