@@ -19,6 +19,7 @@ from typing import Dict, Any
 import json
 import os
 from PySide6.QtGui import QColor
+from quotes_data import BUILTIN_QUOTES
 
 
 def _user_data_dir() -> str:
@@ -505,55 +506,7 @@ class Config:
                 }
             ],
             "custom_themes": [],
-            "quotes": [
-                {"text": "The only way to do great work is to love what you do.", "author": "Steve Jobs"},
-                {"text": "Life is what happens when you're busy making other plans.", "author": "John Lennon"},
-                {"text": "The journey of a thousand miles begins with a single step.", "author": "Lao Tzu"},
-                {"text": "In the middle of difficulty lies opportunity.", "author": "Albert Einstein"},
-                {"text": "The best time to plant a tree was 20 years ago. The second best time is now.", "author": "Chinese Proverb"},
-                {"text": "Whether you think you can or you think you can't, you're right.", "author": "Henry Ford"},
-                {"text": "It does not matter how slowly you go as long as you do not stop.", "author": "Confucius"},
-                {"text": "The only impossible journey is the one you never begin.", "author": "Tony Robbins"},
-                {"text": "Success is not final, failure is not fatal: it is the courage to continue that counts.", "author": "Winston Churchill"},
-                {"text": "Believe you can and you're halfway there.", "author": "Theodore Roosevelt"},
-                {"text": "The future belongs to those who believe in the beauty of their dreams.", "author": "Eleanor Roosevelt"},
-                {"text": "The only limit to our realization of tomorrow will be our doubts of today.", "author": "Franklin D. Roosevelt"},
-                {"text": "It is during our darkest moments that we must focus to see the light.", "author": "Aristotle Onassis"},
-                {"text": "The greatest glory in living lies not in never falling, but in rising every time we fall.", "author": "Nelson Mandela"},
-                {"text": "The way to get started is to quit talking and begin doing.", "author": "Walt Disney"},
-                {"text": "Your time is limited, so don't waste it living someone else's life.", "author": "Steve Jobs"},
-                {"text": "If you look at what you have in life, you'll always have more.", "author": "Oprah Winfrey"},
-                {"text": "Life is really simple, but we insist on making it complicated.", "author": "Confucius"},
-                {"text": "The mind is everything. What you think you become.", "author": "Buddha"},
-                {"text": "The best and most beautiful things in the world cannot be seen or even touched - they must be felt with the heart.", "author": "Helen Keller"},
-                {"text": "The greatest discovery of my generation is that a human being can alter his life by altering his attitudes of mind.", "author": "William James"},
-                {"text": "Twenty years from now you will be more disappointed by the things that you didn't do than by the ones you did do.", "author": "Mark Twain"},
-                {"text": "The only thing we have to fear is fear itself - nameless, unreasoning, unjustified terror which paralyzes needed efforts to convert retreat into advance.", "author": "Franklin D. Roosevelt"},
-                {"text": "Success is not the key to happiness. Happiness is the key to success. If you love what you are doing, you will be successful.", "author": "Albert Schweitzer"},
-                {"text": "The best way to predict the future is to invent it.", "author": "Alan Kay"},
-                {"text": "I have not failed. I've just found 10,000 ways that won't work.", "author": "Thomas Edison"},
-                {"text": "The secret of getting ahead is getting started. The secret of getting started is breaking your complex overwhelming tasks into small manageable tasks, and then starting on the first one.", "author": "Mark Twain"},
-                {"text": "The only way to do great work is to love what you do. If you haven't found it yet, keep looking. Don't settle.", "author": "Steve Jobs"},
-                {"text": "The difference between ordinary and extraordinary is that little extra.", "author": "Jimmy Johnson"},
-                {"text": "The most difficult thing is the decision to act, the rest is merely tenacity.", "author": "Amelia Earhart"},
-                {"text": "The ultimate measure of a man is not where he stands in moments of comfort and convenience, but where he stands at times of challenge and controversy. The true neighbor will risk his position, his prestige, and even his life for the welfare of others.", "author": "Martin Luther King Jr."},
-                {"text": "Let us not seek to satisfy our thirst for freedom by drinking from the cup of bitterness and hatred. We must forever conduct our struggle on the high plane of dignity and discipline. We must not allow our creative protest to degenerate into physical violence.", "author": "Martin Luther King Jr."},
-                {"text": "The world is a book and those who do not travel read only one page. We live in a wonderful world that is full of beauty, charm and adventure. There is no end to the adventures we can have if only we seek them with our eyes open.", "author": "Augustine of Hippo"},
-                {"text": "It is not the critic who counts; not the man who points out how the strong man stumbles, or where the doer of deeds could have done them better. The credit belongs to the man who is actually in the arena, whose face is marred by dust and sweat and blood.", "author": "Theodore Roosevelt"},
-                {"text": "The only thing necessary for the triumph of evil is for good men to do nothing. We must take sides. Neutrality helps the oppressor, never the victim. Silence encourages the tormentor, never the tormented.", "author": "Elie Wiesel"},
-                {"text": "The greatest discovery of all time is that a person can change his future by merely changing his attitude. When you change the quality of your thinking, you change the quality of your life, sometimes instantaneously.", "author": "Oprah Winfrey"},
-                {"text": "The most common way people give up their power is by thinking they don't have any. You must find the place inside yourself where nothing is impossible. The only way to do great work is to love what you do.", "author": "Alice Walker"},
-                {"text": "The best and most beautiful things in the world cannot be seen or even touched - they must be felt with the heart. The most important thing is to enjoy your life - to be happy - it's all that matters.", "author": "Helen Keller"},
-                {"text": "The future is not something we enter. The future is something we create. The only way to predict the future is to have power to shape the future. Those who do not remember the past are condemned to repeat it.", "author": "Leonard I. Sweet"},
-                {"text": "Four score and seven years ago our fathers brought forth on this continent, a new nation, conceived in Liberty, and dedicated to the proposition that all men are created equal. Now we are engaged in a great civil war, testing whether that nation, or any nation so conceived and so dedicated, can long endure.", "author": "Abraham Lincoln"},
-                {"text": "We choose to go to the moon in this decade and do the other things, not because they are easy, but because they are hard, because that goal will serve to organize and measure the best of our energies and skills, because that challenge is one that we are willing to accept, one we are unwilling to postpone, and one which we intend to win.", "author": "John F. Kennedy"},
-                {"text": "We shall go on to the end, we shall fight in France, we shall fight on the seas and oceans, we shall fight with growing confidence and growing strength in the air, we shall defend our Island, whatever the cost may be, we shall fight on the beaches, we shall fight on the landing grounds, we shall fight in the fields and in the streets, we shall fight in the hills; we shall never surrender.", "author": "Winston Churchill"},
-                {"text": "I have a dream that one day this nation will rise up and live out the true meaning of its creed: We hold these truths to be self-evident, that all men are created equal. I have a dream that my four little children will one day live in a nation where they will not be judged by the color of their skin but by the content of their character.", "author": "Martin Luther King Jr."},
-                {"text": "The credit belongs to the man who is actually in the arena, whose face is marred by dust and sweat and blood; who strives valiantly; who errs, who comes short again and again, because there is no effort without error and shortcoming; but who does actually strive to do the deeds; who knows great enthusiasms, the great devotions; who spends himself in a worthy cause; who at the best knows in the end the triumph of high achievement, and who at the worst, if he fails, at least fails while daring greatly.", "author": "Theodore Roosevelt"},
-                {"text": "The only thing standing between you and your goal is the story you keep telling yourself as to why it is not possible.", "author": "Jordan Belfort"},
-                {"text": "The greatest wealth is to live content with little, for there is never want where the mind is satisfied.", "author": "Lucretius"},
-                {"text": "The only thing necessary for the triumph of evil is for good men to do nothing. We must take sides. Neutrality helps the oppressor, never the victim. Silence encourages the tormentor, never the tormented.", "author": "Elie Wiesel"}
-            ]
+            "quotes": BUILTIN_QUOTES,
         }
     
     def load(self) -> None:
