@@ -576,6 +576,7 @@ class TypingOverlay(QWidget):
             )
         self._update_display()
         self._update_mode_labels()
+        self._update_cursor_visibility()
 
     def _quote_length(self, text: str) -> str:
         """Classify a quote by its character count into a length bucket."""
@@ -764,8 +765,17 @@ class TypingOverlay(QWidget):
             f'<span style="color:{untyped_color};"> no</span>'
         )
 
+    def _update_cursor_visibility(self) -> None:
+        """Hide the mouse cursor while a typing test is actively in progress."""
+        active = self.engine.start_time is not None and not self.showing_results
+        if active:
+            self.setCursor(Qt.BlankCursor)
+        else:
+            self.unsetCursor()
+
     def _show_results(self) -> None:
         self.showing_results = True
+        self._update_cursor_visibility()
         wpm = self.engine.calculate_wpm()
         accuracy = self.engine.calculate_accuracy()
         duration = self.engine.get_duration()
@@ -927,6 +937,7 @@ class TypingOverlay(QWidget):
                 if self.active_mode == MODE_TIME:
                     self._check_timed_buffer()
                 self._update_display()
+                self._update_cursor_visibility()
 
     def _adjust_opacity(self, delta: int) -> None:
         current = self.config.get("bg_opacity", 128)
