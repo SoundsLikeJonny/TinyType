@@ -19,7 +19,7 @@ from typing import Dict, Any
 import json
 import os
 from PySide6.QtGui import QColor
-from quotes_data import BUILTIN_QUOTES
+from src.quotes_data import BUILTIN_QUOTES
 
 
 def _user_data_dir() -> str:
