@@ -379,6 +379,13 @@ class Config:
                     "window": "#aa00ff"
                 },
                 {
+                    "name": "SOUNDWICH",
+                    "primary": "#e9362f",
+                    "secondary": "#5ab525",
+                    "error": "#000000",
+                    "window": "#ff8f07"
+                },
+                {
                     "name": "Crimson",
                     "primary": "#ffea00",
                     "secondary": "#ffffff",
