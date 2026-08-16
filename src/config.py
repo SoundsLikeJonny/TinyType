@@ -78,6 +78,10 @@ class Config:
             "typing_height": 60,
             "show_border": False,
             "active_test": 0,
+            "active_mode": "words",
+            "word_count_index": 2,
+            "time_index": 1,
+            "quote_index": 0,
             "use_random": False,
             "typing_tests": [
                 {"name": "Default", "text": ""},

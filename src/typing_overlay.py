@@ -116,10 +116,11 @@ class TypingOverlay(QWidget):
         self._pending_update_url: str = ""
         self._pending_update_version: str = ""
 
-        self.active_mode: str = MODE_WORDS
-        self.word_count_index: int = 2
-        self.time_index: int = 1
-        self.quote_index: int = 0
+        saved_mode: str = self.config.get("active_mode", MODE_WORDS)
+        self.active_mode: str = saved_mode if saved_mode in (MODE_WORDS, MODE_TIME, MODE_QUOTES) else MODE_WORDS
+        self.word_count_index: int = self.config.get("word_count_index", 2)
+        self.time_index: int = self.config.get("time_index", 1)
+        self.quote_index: int = self.config.get("quote_index", 0)
         self.current_quote_author: str = ""
 
         self.paused: bool = False
@@ -463,12 +464,14 @@ class TypingOverlay(QWidget):
     def _set_active_mode(self, mode: str) -> None:
         self.active_mode = mode
         self._update_mode_labels()
+        self._persist_state()
 
     def _cycle_active_mode(self, direction: int) -> None:
         modes = [MODE_WORDS, MODE_TIME, MODE_QUOTES]
         idx = modes.index(self.active_mode)
         self.active_mode = modes[(idx + direction) % len(modes)]
         self._update_mode_labels()
+        self._persist_state()
         if self.engine.start_time is None:
             self._start_new_test()
 
@@ -481,6 +484,7 @@ class TypingOverlay(QWidget):
         elif mode == MODE_QUOTES:
             self.quote_index = (self.quote_index + direction) % len(QUOTE_OPTIONS)
         self._update_mode_labels()
+        self._persist_state()
         if self.engine.start_time is None:
             self._start_new_test()
 
@@ -671,6 +675,16 @@ class TypingOverlay(QWidget):
         words_remaining = len(remaining_text.split())
         if words_remaining <= 10:
             self._extend_timed_buffer()
+
+    def _persist_state(self) -> None:
+        """Save the current test mode, its option index, and active word pool
+        so they are restored on the next app launch."""
+        self.config.set("active_mode", self.active_mode)
+        self.config.set("word_count_index", self.word_count_index)
+        self.config.set("time_index", self.time_index)
+        self.config.set("quote_index", self.quote_index)
+        self.config.set("active_test", self.config.get("active_test", 0))
+        self.config.save()
 
     def _cycle_active_test(self, direction: int) -> None:
         # Word pools (including Error Gen) only apply to Word/Time tests.
