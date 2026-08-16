@@ -134,6 +134,7 @@ class TypingOverlay(QWidget):
         self._apply_config()
         self._update_position()
         self._load_problem_chars()
+        self._load_problem_ngrams()
         self._start_new_test()
         self._connect_mode_label_clicks()
 
@@ -432,6 +433,29 @@ class TypingOverlay(QWidget):
             if len(row) >= 3 and row[2] > 0 and row[1] / row[2] > 0.2
         ]
 
+    def _load_problem_ngrams(self) -> None:
+        stats: Dict[str, Any] = self.database.get_ngram_stats(self.user_email)
+        self.problem_ngrams: list = [
+            row[0] for row in stats.get("problem_ngrams", [])
+            if len(row) >= 3 and row[2] > 0 and row[1] / row[2] > 0.2
+        ]
+
+    def _is_error_gen_test(self) -> bool:
+        """True when the active word pool is the built-in Error Gen pool."""
+        typing_tests: list = self.config.get("typing_tests", [{"name": "Default", "text": ""}])
+        active_test: int = min(self.config.get("active_test", 0), len(typing_tests) - 1)
+        test = typing_tests[active_test]
+        return test.get("category") == "error_gen" or test.get("name") == "Error Gen"
+
+    def _error_gen_corpus(self) -> list:
+        """Collect English words from all word pools to train the Error Gen model."""
+        words: list = list(self.engine.COMMON_WORDS)
+        for test in self.config.get("typing_tests", []):
+            text = test.get("text", "")
+            if text and test.get("category") != "error_gen":
+                words.extend(w for w in text.split() if w.isalpha())
+        return words
+
     # ------------------------------------------------------------------
     # Mode selector
     # ------------------------------------------------------------------
@@ -569,11 +593,19 @@ class TypingOverlay(QWidget):
             else:
                 word_count = WORD_COUNT_OPTIONS[self.word_count_index]
 
-            self.engine.generate_text(
-                word_count,
-                self.problem_chars[:5] if self.problem_chars else None,
-                custom_text
-            )
+            if self._is_error_gen_test():
+                self.engine.generate_error_gen_text(
+                    word_count,
+                    self.problem_chars[:5] if self.problem_chars else None,
+                    self.problem_ngrams[:20] if self.problem_ngrams else None,
+                    self._error_gen_corpus(),
+                )
+            else:
+                self.engine.generate_text(
+                    word_count,
+                    self.problem_chars[:5] if self.problem_chars else None,
+                    custom_text
+                )
         self._update_display()
         self._update_mode_labels()
         self._update_cursor_visibility()
@@ -616,12 +648,20 @@ class TypingOverlay(QWidget):
         active_test: int = min(self.config.get("active_test", 0), len(typing_tests) - 1)
         custom_text: str = typing_tests[active_test].get("text", "")
 
-        if custom_text and custom_text.strip():
+        if self._is_error_gen_test():
+            extra_words = self.engine.generate_error_gen_words(
+                100,
+                self.problem_chars[:5] if self.problem_chars else None,
+                self.problem_ngrams[:20] if self.problem_ngrams else None,
+                self._error_gen_corpus(),
+            )
+        elif custom_text and custom_text.strip():
             pool = custom_text.strip().split()
+            extra_words = random.choices(pool, k=100)
         else:
             pool = self.engine.COMMON_WORDS
+            extra_words = random.choices(pool, k=100)
 
-        extra_words = random.choices(pool, k=100)
         self.engine.text += " " + " ".join(extra_words)
         self.engine.end_time = None
 
@@ -633,6 +673,9 @@ class TypingOverlay(QWidget):
             self._extend_timed_buffer()
 
     def _cycle_active_test(self, direction: int) -> None:
+        # Word pools (including Error Gen) only apply to Word/Time tests.
+        if self.active_mode not in (MODE_WORDS, MODE_TIME):
+            return
         typing_tests: list = self.config.get("typing_tests", [{"name": "Default", "text": ""}])
         active_test: int = self.config.get("active_test", 0)
         active_test = (active_test + direction) % len(typing_tests)
@@ -784,6 +827,10 @@ class TypingOverlay(QWidget):
             self.user_email, wpm, accuracy,
             self.engine.mistakes, duration
         )
+        if self.engine.ngram_total:
+            self.database.update_ngram_stats(
+                self.user_email, self.engine.ngram_errors, self.engine.ngram_total
+            )
 
         typed_color = self.config.get("typed_color", "#8b047e")
         self.ui.label_text.setText(
@@ -1207,6 +1254,7 @@ class TypingOverlay(QWidget):
     def update_user(self, user_email: Optional[str]) -> None:
         self.user_email = user_email
         self._load_problem_chars()
+        self._load_problem_ngrams()
 
     def apply_config(self) -> None:
         self._apply_config()

@@ -196,6 +196,7 @@ class SettingsWindow(QMainWindow):
         self.ui.lineEdit_testName.textChanged.connect(self._update_test_name)
         self.ui.textEdit_testText.textChanged.connect(self._update_test_text)
         self.ui.comboBox_testCategory.currentIndexChanged.connect(self._update_test_category)
+        self.ui.comboBox_testCategory.addItem("Error Gen")
 
         self.ui.btn_applyTheme.clicked.connect(self._apply_theme)
         self.ui.btn_saveTheme.clicked.connect(self._save_theme)
@@ -331,7 +332,8 @@ class SettingsWindow(QMainWindow):
             self.ui.lineEdit_testName.setText(test["name"])
             self.ui.textEdit_testText.setPlainText(test.get("text", ""))
             cat = test.get("category", "word_pool")
-            self.ui.comboBox_testCategory.setCurrentIndex(0 if cat == "word_pool" else 1)
+            idx = 0 if cat == "word_pool" else (2 if cat == "error_gen" else 1)
+            self.ui.comboBox_testCategory.setCurrentIndex(idx)
             for w in (self.ui.lineEdit_testName,
                       self.ui.textEdit_testText,
                       self.ui.comboBox_testCategory):
@@ -351,7 +353,9 @@ class SettingsWindow(QMainWindow):
     def _update_test_category(self, index: int) -> None:
         row = self.ui.listWidget_tests.currentRow()
         if 0 <= row < len(self.typing_tests):
-            self.typing_tests[row]["category"] = "word_pool" if index == 0 else "quote"
+            self.typing_tests[row]["category"] = (
+                "word_pool" if index == 0 else ("error_gen" if index == 2 else "quote")
+            )
 
     # ------------------------------------------------------------------
     # Auth

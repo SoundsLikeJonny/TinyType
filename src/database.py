@@ -90,6 +90,15 @@ class Database:
                 total_typed INTEGER
             )
         """)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS ngram_stats (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_email TEXT,
+                ngram TEXT,
+                errors INTEGER,
+                total_typed INTEGER
+            )
+        """)
         conn.commit()
         conn.close()
 
@@ -117,6 +126,8 @@ class Database:
                     self._do_save_test(conn, *args)
                 elif op == "update_char_stats":
                     self._do_update_char_stats(conn, *args)
+                elif op == "update_ngram_stats":
+                    self._do_update_ngram_stats(conn, *args)
             except Exception:
                 pass  # never crash the writer thread
             finally:
@@ -164,6 +175,33 @@ class Database:
             )
         conn.commit()
 
+    def _do_update_ngram_stats(
+        self,
+        conn: sqlite3.Connection,
+        user_email: Optional[str],
+        ngram_errors: Dict[str, int],
+        ngram_total: Dict[str, int],
+    ) -> None:
+        for ngram, total in ngram_total.items():
+            errors = ngram_errors.get(ngram, 0)
+            row = conn.execute(
+                """SELECT id, errors, total_typed FROM ngram_stats
+                   WHERE user_email IS ? AND ngram = ?""",
+                (user_email, ngram),
+            ).fetchone()
+            if row:
+                conn.execute(
+                    """UPDATE ngram_stats SET errors = ?, total_typed = ? WHERE id = ?""",
+                    (row[1] + errors, row[2] + total, row[0]),
+                )
+            else:
+                conn.execute(
+                    """INSERT INTO ngram_stats (user_email, ngram, errors, total_typed)
+                       VALUES (?, ?, ?, ?)""",
+                    (user_email, ngram, errors, total),
+                )
+        conn.commit()
+
     # ------------------------------------------------------------------
     # Public write API  (UI thread — non-blocking)
     # ------------------------------------------------------------------
@@ -185,6 +223,16 @@ class Database:
         is_error: bool,
     ) -> None:
         self._write_queue.put(("update_char_stats", (user_email, char, is_error)))
+
+    def update_ngram_stats(
+        self,
+        user_email: Optional[str],
+        ngram_errors: Dict[str, int],
+        ngram_total: Dict[str, int],
+    ) -> None:
+        self._write_queue.put(
+            ("update_ngram_stats", (user_email, ngram_errors, ngram_total))
+        )
 
     # ------------------------------------------------------------------
     # Public read API  (UI thread — uses a short-lived read connection)
@@ -220,6 +268,25 @@ class Database:
             "total_tests": row[2],
             "problem_chars": chars,
         }
+
+    def get_ngram_stats(self, user_email: Optional[str]) -> Dict[str, Any]:
+        conn = self._open_conn()
+        try:
+            if user_email is None:
+                ngrams = conn.execute(
+                    """SELECT ngram, errors, total_typed FROM ngram_stats
+                       WHERE user_email IS NULL ORDER BY errors DESC LIMIT 30"""
+                ).fetchall()
+            else:
+                ngrams = conn.execute(
+                    """SELECT ngram, errors, total_typed FROM ngram_stats
+                       WHERE user_email = ? ORDER BY errors DESC LIMIT 30""",
+                    (user_email,),
+                ).fetchall()
+        finally:
+            conn.close()
+
+        return {"problem_ngrams": ngrams}
 
     # ------------------------------------------------------------------
     # Shutdown
