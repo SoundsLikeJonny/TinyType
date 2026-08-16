@@ -223,6 +223,22 @@
     </widget>
    </item>
    <item>
+    <widget class="WpmGraphWidget" name="widget_wpm_graph">
+     <property name="visible">
+      <bool>false</bool>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>60</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background: transparent;</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QWidget" name="widget_about">
      <property name="visible">
       <bool>false</bool>
@@ -264,5 +280,12 @@
  </widget>
  <resources/>
  <connections/>
+ <customwidgets>
+  <customwidget>
+   <class>WpmGraphWidget</class>
+   <extends>QWidget</extends>
+   <header>src.wpm_graph_widget</header>
+  </customwidget>
+ </customwidgets>
 </ui>
 

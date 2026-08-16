@@ -13,7 +13,7 @@
 #
 #      You should have received a copy of the GNU General Public License
 #      along with this program.  If not, see <https://www.gnu.org/licenses/>.
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Tuple
 import os
 import time as time_module
 
@@ -40,6 +40,12 @@ STATUS_TYPING = "Typing"
 STATUS_STOPPED = "Stopped"
 STATUS_UNFOCUSED = "Unfocused"
 STATUS_UNRESPONSIVE = "Unresponsive"
+
+# WPM is sampled once per second for the graph. The first sample is taken at
+# 1 second (not 0) so data points appear across the full duration while
+# avoiding the inflated near-zero-time spike of cumulative WPM.
+WPM_SAMPLE_INTERVAL = 1.0
+WPM_FIRST_SAMPLE_AT = 1.0
 
 
 class ChildEventFilter(QObject):
@@ -84,6 +90,12 @@ class ChildEventFilter(QObject):
         elif t == QEvent.Type.Wheel:
             self.overlay.wheelEvent(event)
             return True
+        elif t == QEvent.Type.Enter:
+            self.overlay._set_hovering(True)
+            return False
+        elif t == QEvent.Type.Leave:
+            self.overlay._set_hovering(False)
+            return False
         return False
 
 
@@ -128,6 +140,14 @@ class TypingOverlay(QWidget):
         self.last_keypress_time: float = time_module.time()
         self.status_text: str = ""
         self.status_anim_frame: int = 0
+
+        # WPM-over-time tracking and results/graph cycling.
+        self.wpm_samples: List[Tuple[float, float]] = []
+        self._show_graph: bool = False
+        self._hovering: bool = False
+        self.results_cycle_timer = QTimer()
+        self.results_cycle_timer.setInterval(3000)
+        self.results_cycle_timer.timeout.connect(self._toggle_results_view)
 
         self._child_filter = ChildEventFilter(self)
 
@@ -342,31 +362,28 @@ class TypingOverlay(QWidget):
         """
         details = self._get_widget("widget_details")
         about = self._get_widget("widget_about")
+        graph = self._get_widget("widget_wpm_graph")
         details_visible = details is not None and details.isVisible()
         about_visible = about is not None and about.isVisible()
+        graph_visible = graph is not None and graph.isVisible()
 
         if about_visible:
             # Let the layout compute the full height (details + text + about).
             target = self.ui.verticalLayout.sizeHint().height()
         else:
-            # Compact view: just the visible details/text rows.
+            # Compact view: just the visible details/text/graph rows.
+            target = self.ui.verticalLayout.spacing()
             if details_visible:
-                target = self._compact_height()
+                target += details.sizeHint().height()
+            if graph_visible:
+                target += graph.sizeHint().height()
             else:
-                # Both hidden: text-only view.
-                target = self.ui.verticalLayout.spacing() + self.ui.label_text.sizeHint().height()
+                target += self.ui.label_text.sizeHint().height()
             target = max(40, target)
 
         self.setFixedHeight(target)
         self._update_display()
         self.update()
-
-    def _compact_height(self) -> int:
-        """Height of the window when the about panel is hidden (details visible)."""
-        details = self._get_widget("widget_details")
-        text_h = self.ui.label_text.sizeHint().height()
-        details_h = details.sizeHint().height() if details is not None else 0
-        return self.ui.verticalLayout.spacing() + details_h + text_h
 
     def _apply_config(self) -> None:
         font_family: str = self.config.get("font_family", "Consolas")
@@ -534,6 +551,15 @@ class TypingOverlay(QWidget):
         self._update_mode_labels()
         self.update()  # repaint background with new window color
 
+        # Keep the WPM graph's line colors in sync with the active theme.
+        graph = self._get_widget("widget_wpm_graph")
+        if graph is not None and graph.isVisible():
+            graph.set_colors(
+                theme.get("primary", "#808080"),
+                theme.get("secondary", "#8b047e"),
+                theme.get("window", "#000000"),
+            )
+
         self._theme_banner_showing = True
         self.ui.label_status.setText(
             f'<span style="color:{theme.get("secondary", "#8b047e")};'
@@ -572,6 +598,14 @@ class TypingOverlay(QWidget):
         self.paused = False
         self.paused_elapsed = 0.0
         self.last_keypress_time = time_module.time()
+        self.wpm_samples = []
+        self._show_graph = False
+        self.results_cycle_timer.stop()
+        graph = self._get_widget("widget_wpm_graph")
+        if graph is not None:
+            graph.setVisible(False)
+            graph.clear()
+        self.ui.label_text.setVisible(True)
 
         typing_tests: list = self.config.get("typing_tests", [{"name": "Default", "text": ""}])
         use_random: bool = self.config.get("use_random", False)
@@ -613,6 +647,7 @@ class TypingOverlay(QWidget):
         self._update_display()
         self._update_mode_labels()
         self._update_cursor_visibility()
+        self._resize_to_fit()
 
     def _quote_length(self, text: str) -> str:
         """Classify a quote by its character count into a length bucket."""
@@ -812,6 +847,12 @@ class TypingOverlay(QWidget):
         self.quit_prompt_active = True
         untyped_color = self.config.get("untyped_color", "#808080")
         secondary = self.config.get("typed_color", "#8b047e")
+        # Always show the prompt: hide the graph (if visible) and show the
+        # results label so the prompt text is never hidden behind it.
+        graph = self._get_widget("widget_wpm_graph")
+        if graph is not None:
+            graph.setVisible(False)
+        self.ui.label_text.setVisible(True)
         # Always center the quit prompt, regardless of caret alignment mode.
         self.ui.label_text.setAlignment(Qt.AlignCenter)
         self.ui.label_text.setText(
@@ -821,6 +862,7 @@ class TypingOverlay(QWidget):
             f'<span style="color:{secondary}; font-weight:bold;">[n]</span>'
             f'<span style="color:{untyped_color};"> no</span>'
         )
+        self._resize_to_fit()
 
     def _update_cursor_visibility(self) -> None:
         """Hide the mouse cursor while a typing test is actively in progress."""
@@ -846,6 +888,10 @@ class TypingOverlay(QWidget):
                 self.user_email, self.engine.ngram_errors, self.engine.ngram_total
             )
 
+        # Ensure the final WPM is captured in the samples for the graph.
+        if not self.wpm_samples or self.wpm_samples[-1][0] < duration - 0.5:
+            self.wpm_samples.append((duration, wpm))
+
         typed_color = self.config.get("typed_color", "#8b047e")
         self.ui.label_text.setText(
             f'<span style="color:{typed_color};">'
@@ -853,8 +899,41 @@ class TypingOverlay(QWidget):
             f"Time: {duration:.1f}s  |  Press TAB to restart"
             f"</span>"
         )
+
+        graph = self._get_widget("widget_wpm_graph")
+        if graph is not None:
+            primary = self.config.get("untyped_color", "#808080")
+            window_color = self.config.get("window_color", "#000000")
+            graph.set_data(self.wpm_samples, primary, typed_color, window_color=window_color)
+            graph.setVisible(False)
+        self.ui.label_text.setVisible(True)
+        self._show_graph = False
+        self._resize_to_fit()
+        self.results_cycle_timer.start()
+
         self.test_completed.emit({"wpm": wpm, "accuracy": accuracy,
                                   "duration": duration, "mistakes": self.engine.mistakes})
+
+    def _toggle_results_view(self) -> None:
+        """Cycle between the results label and the WPM graph. Paused on hover."""
+        if not self.showing_results or self._hovering:
+            return
+        self._show_graph = not self._show_graph
+        graph = self._get_widget("widget_wpm_graph")
+        if self._show_graph and graph is not None:
+            self.ui.label_text.setVisible(False)
+            graph.setVisible(True)
+            graph.update()
+        else:
+            graph.setVisible(False)
+            self.ui.label_text.setVisible(True)
+        self._resize_to_fit()
+
+    def _set_hovering(self, hovering: bool) -> None:
+        """Pause/resume results cycling based on mouse hover."""
+        self._hovering = hovering
+        if not hovering and self.showing_results:
+            self.results_cycle_timer.start()
 
     # ------------------------------------------------------------------
     # Hotkeys / input
@@ -874,7 +953,15 @@ class TypingOverlay(QWidget):
                 return
             elif text == "n" or event.key() == Qt.Key_Escape:
                 self.quit_prompt_active = False
-                self._update_display()
+                # Restore the graph view if it was showing before the prompt.
+                if self.showing_results and self._show_graph:
+                    graph = self._get_widget("widget_wpm_graph")
+                    if graph is not None:
+                        self.ui.label_text.setVisible(False)
+                        graph.setVisible(True)
+                        self._resize_to_fit()
+                else:
+                    self._update_display()
             return
 
         if event.key() == Qt.Key_Escape:
@@ -1143,6 +1230,14 @@ class TypingOverlay(QWidget):
             else:
                 current_wpm = 0.0
 
+            # Sample WPM periodically while a test is actively running. Skip
+            # the first few seconds so the opening point isn't inflated by the
+            # tiny-time-window effect of cumulative WPM.
+            if self.engine.start_time is not None and not self.paused:
+                if elapsed >= WPM_FIRST_SAMPLE_AT:
+                    if not self.wpm_samples or elapsed - self.wpm_samples[-1][0] >= WPM_SAMPLE_INTERVAL:
+                        self.wpm_samples.append((elapsed, current_wpm))
+
             text = (
                 f"WPM: {current_wpm:.1f}  |  "
                 f"Accuracy: {self.engine.calculate_accuracy():.1f}%  |  "
@@ -1165,6 +1260,14 @@ class TypingOverlay(QWidget):
         base = QColor(window_color)
         base.setAlpha(bg_opacity)
         painter.fillRect(self.rect(), base)
+
+    def enterEvent(self, event) -> None:
+        self._set_hovering(True)
+        super().enterEvent(event)
+
+    def leaveEvent(self, event) -> None:
+        self._set_hovering(False)
+        super().leaveEvent(event)
 
     def mousePressEvent(self, event) -> None:
         if event.modifiers(): # if event.modifiers() & Qt.AltModifier:
