@@ -409,6 +409,21 @@ class SettingsWindow(QMainWindow):
             html += (f"<tr><td>{char}</td><td>{errors}</td>"
                      f"<td>{total}</td><td>{rate:.1f}%</td></tr>")
         html += "</table>"
+
+        ngram_stats = self.database.get_ngram_stats(self.auth.user_email)
+        html += "<h3>Most Problematic N-grams:</h3>"
+        html += ('<table border="1" cellpadding="5">'
+                 '<tr><th>N-gram</th><th>Errors</th><th>Total</th>'
+                 '<th>Error Rate</th></tr>')
+        rows = []
+        for ngram, errors, total in ngram_stats["problem_ngrams"]:
+            rate = (errors / total * 100) if total > 0 else 0
+            rows.append((rate, ngram, errors, total))
+        rows.sort(key=lambda r: r[0], reverse=True)
+        for rate, ngram, errors, total in rows:
+            html += (f"<tr><td>{ngram}</td><td>{errors}</td>"
+                     f"<td>{total}</td><td>{rate:.1f}%</td></tr>")
+        html += "</table>"
         self.ui.textBrowser_stats.setHtml(html)
 
     # ------------------------------------------------------------------
